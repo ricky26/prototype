@@ -49,11 +49,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PROTOTYPE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_MX;GLEW_STATIC;WIN32;_DEBUG;_WINDOWS;_USRDLL;PROTOTYPE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\netlib\include;$(SolutionDir)\glew\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>xinput.lib;winmm.lib;netlib.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -74,6 +77,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\prototype\audio.h" />
+    <ClInclude Include="include\prototype\binding.h" />
+    <ClInclude Include="include\prototype\driver.h" />
+    <ClInclude Include="include\prototype\driver_internal.h" />
+    <ClInclude Include="include\prototype\gl.h" />
+    <ClInclude Include="include\prototype\i18n.h" />
+    <ClInclude Include="include\prototype\input.h" />
+    <ClInclude Include="include\prototype\key.h" />
+    <ClInclude Include="include\prototype\prototype.h" />
+    <ClInclude Include="include\prototype\window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\glew\src\glew.c" />
+    <ClCompile Include="input_win32.cpp" />
+    <ClCompile Include="key.cpp" />
+    <ClCompile Include="src\binding.cpp" />
+    <ClCompile Include="src\driver.cpp" />
+    <ClCompile Include="src\i18n.cpp" />
+    <ClCompile Include="src\input.cpp" />
+    <ClCompile Include="src\input_xinput.cpp" />
+    <ClCompile Include="src\prototype_win32.cpp" />
+    <ClCompile Include="src\window.cpp" />
+    <ClCompile Include="src\window_win32.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

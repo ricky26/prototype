@@ -13,5 +13,78 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\prototype">
+      <UniqueIdentifier>{85f3d843-00b5-41c6-a70b-9fe3a9f0a1e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glew">
+      <UniqueIdentifier>{e5826e4c-0793-4cbd-a66a-2e434e191b19}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\prototype\prototype.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\window.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\i18n.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\gl.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\driver.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\audio.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\input.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\driver_internal.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\binding.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\key.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\window_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glew\src\glew.c">
+      <Filter>Source Files\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="src\i18n.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\driver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input_xinput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\binding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="input_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="key.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
