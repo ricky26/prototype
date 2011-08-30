@@ -11,6 +11,42 @@ namespace prototype
 {
 	using netlib::delegate;
 	using netlib::event;
+	
+	class input_driver;
+	class input_device;
+
+	//
+	// events
+	//
+
+	namespace input
+	{
+		class PROTOTYPE_API device_added_event: public event
+		{
+		public:
+			device_added_event(input_driver *_drv, input_device *_dev);
+		
+			PROTOTYPE_INLINE input_driver *driver() const { return static_cast<input_driver*>(sender()); }
+			PROTOTYPE_INLINE input_device *device() const { return mDevice; }
+
+		private:
+			input_device *mDevice;
+		};
+		typedef device_added_event device_removed_event;
+
+		class PROTOTYPE_API driver_added_event: public event
+		{
+		public:
+			driver_added_event(input_driver *_drv);
+		
+			PROTOTYPE_INLINE input_driver *driver() const { return static_cast<input_driver*>(sender()); }
+		};
+		typedef driver_added_event driver_removed_event;
+	}
+
+	//
+	// input
+	//
 
 	class input_device;
 	class PROTOTYPE_API input_control: public ref_counted
@@ -62,12 +98,12 @@ namespace prototype
 		virtual void enumerate();
 
 		PROTOTYPE_INLINE devices_t const& devices() const { return mDevices; }
-		PROTOTYPE_INLINE delegate &on_device_added() { return mDeviceAdded; }
-		PROTOTYPE_INLINE delegate &on_device_removed() { return mDeviceRemoved; }
+		PROTOTYPE_INLINE delegate<input::device_added_event> &on_device_added() { return mDeviceAdded; }
+		PROTOTYPE_INLINE delegate<input::device_removed_event> &on_device_removed() { return mDeviceRemoved; }
 
 		static PROTOTYPE_INLINE drivers_t const& drivers() { return gDrivers; }
-		static PROTOTYPE_INLINE delegate &on_driver_added() { return gDriverAdded; }
-		static PROTOTYPE_INLINE delegate &on_driver_removed() { return gDriverRemoved; }
+		static PROTOTYPE_INLINE delegate<input::driver_added_event> &on_driver_added() { return gDriverAdded; }
+		static PROTOTYPE_INLINE delegate<input::driver_removed_event> &on_driver_removed() { return gDriverRemoved; }
 
 	protected:
 		bool add_device(handle<input_device> const& _ctl);
@@ -78,12 +114,12 @@ namespace prototype
 
 	private:
 		devices_t mDevices;
-		delegate mDeviceAdded;
-		delegate mDeviceRemoved;
+		delegate<input::device_added_event> mDeviceAdded;
+		delegate<input::device_removed_event> mDeviceRemoved;
 
 		static drivers_t gDrivers;
-		static delegate gDriverAdded;
-		static delegate gDriverRemoved;
+		static delegate<input::driver_added_event> gDriverAdded;
+		static delegate<input::driver_removed_event> gDriverRemoved;
 	};
 
 	class PROTOTYPE_API input_controller
@@ -92,51 +128,25 @@ namespace prototype
 		input_controller();
 		virtual ~input_controller();
 		
-		PROTOTYPE_INLINE delegate &on_device_added() { return mDeviceAdded; }
-		PROTOTYPE_INLINE delegate &on_device_removed() { return mDeviceRemoved; }
+		PROTOTYPE_INLINE delegate<input::device_added_event> &on_device_added() { return mDeviceAdded; }
+		PROTOTYPE_INLINE delegate<input::device_removed_event> &on_device_removed() { return mDeviceRemoved; }
 
 	protected:
-		void driver_added(event *_evt);
-		void driver_removed(event *_evt);
+		bool driver_added(input::driver_added_event const& _evt);
+		bool driver_removed(input::driver_removed_event const& _evt);
 
-		void device_added(event *_evt);
-		void device_removed(event *_evt);
+		bool device_added(input::device_added_event const& _evt);
+		bool device_removed(input::device_removed_event const& _evt);
 
 	private:
-		netlib::function_event_handler mDAHandler;
-		netlib::function_event_handler mDRHandler;
-		netlib::function_event_handler mDrvAHandler;
-		netlib::function_event_handler mDrvRHandler;
-		delegate mDeviceAdded;
-		delegate mDeviceRemoved;
+		delegate<input::device_added_event> mDeviceAdded;
+		delegate<input::device_removed_event> mDeviceRemoved;
+		
+		typedef std::pair<delegate<input::device_added_event>::return_t,
+				delegate<input::device_removed_event>::return_t> pair_t;
+		typedef std::unordered_map<handle<input_driver>, pair_t> device_map_t;
+		device_map_t mDHandler;
+		delegate<input::driver_added_event>::return_t mVAHandler;
+		delegate<input::driver_removed_event>::return_t mVRHandler;
 	};
-
-	//
-	// events
-	//
-
-	namespace input
-	{
-		class PROTOTYPE_API device_added_event: public event
-		{
-		public:
-			device_added_event(input_driver *_drv, input_device *_dev);
-		
-			PROTOTYPE_INLINE input_driver *driver() const { return static_cast<input_driver*>(sender()); }
-			PROTOTYPE_INLINE input_device *device() const { return mDevice; }
-
-		private:
-			input_device *mDevice;
-		};
-		typedef device_added_event device_removed_event;
-
-		class PROTOTYPE_API driver_added_event: public event
-		{
-		public:
-			driver_added_event(input_driver *_drv);
-		
-			PROTOTYPE_INLINE input_driver *driver() const { return static_cast<input_driver*>(sender()); }
-		};
-		typedef driver_added_event driver_removed_event;
-	}
 }

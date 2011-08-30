@@ -190,6 +190,7 @@ namespace prototype
 		RECT rect;
 		int modifiers;
 		HCURSOR cursor;
+		bool active;
 
 		window_internal()
 		{
@@ -198,6 +199,7 @@ namespace prototype
 			rc = NULL;
 			cursor = LoadCursor(NULL, IDC_ARROW);
 			fullscreen = false;
+			active = true;
 			modifiers = 0;
 		}
 
@@ -285,6 +287,10 @@ namespace prototype
 
 				switch(_msg)
 				{
+				case WM_ACTIVATE:
+					wi->active = LOWORD(_wparam) != 0;
+					break;
+
 				case WM_PAINT:
 					{
 						ValidateRect(_win, NULL);
@@ -314,7 +320,7 @@ namespace prototype
 					{
 						RedrawWindow(wi->handle, NULL, NULL, RDW_INTERNALPAINT);
 						window_event evt(win);
-						win->on_resized()(&evt);
+						win->on_resized()(evt);
 					}
 					return 0;
 
@@ -556,20 +562,26 @@ namespace prototype
 		SetWindowPos(wi->handle, NULL, 0, 0, _sx, _sy, SWP_NOMOVE | SWP_NOZORDER);
 	}
 
-	bool window::visible() const
+	bool window::active() const
 	{
-		if(!valid())
-			return false;
-		
+		window_internal *wi = window_internal::get(mInternal);
+		return wi->active;
+	}
+
+	void window::activate()
+	{
+		window_internal *wi = window_internal::get(mInternal);
+		SetActiveWindow(wi->handle);
+	}
+
+	bool window::visible() const
+	{		
 		window_internal *wi = window_internal::get(mInternal);
 		return IsWindowVisible(wi->handle) == TRUE;
 	}
 
 	void window::set_visible(bool _v)
 	{
-		if(!valid())
-			return;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		ShowWindow(wi->handle, _v ? SW_SHOW : SW_HIDE);
 	}
@@ -577,18 +589,12 @@ namespace prototype
 		
 	bool window::cursor_visible() const
 	{
-		if(!valid())
-			return false;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		return wi->cursor != NULL;
 	}
 
 	void window::set_cursor_visible(bool _v)
 	{
-		if(!valid())
-			return;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		wi->cursor = _v ? LoadCursor(NULL, IDC_ARROW) : NULL;
 		SetCursor(wi->cursor);
@@ -596,9 +602,6 @@ namespace prototype
 	
 	bool window::fullscreen(int _w, int _h, int _r)
 	{
-		if(!valid())
-			return false;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		if(wi->fullscreen)
 			return true; // Already fullscreen
@@ -642,9 +645,6 @@ namespace prototype
 
 	void window::minimise()
 	{
-		if(!valid())
-			return;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		if(wi->fullscreen)
 			restore();
@@ -654,9 +654,6 @@ namespace prototype
 
 	void window::maximise()
 	{
-		if(!valid())
-			return;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		if(wi->fullscreen)
 			restore();
@@ -666,9 +663,6 @@ namespace prototype
 
 	void window::restore()
 	{
-		if(!valid())
-			return;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		if(wi->fullscreen)
 		{
@@ -694,9 +688,6 @@ namespace prototype
 
 	void window::close()
 	{
-		if(!valid())
-			return;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		if(wi->fullscreen)
 		{
@@ -719,9 +710,6 @@ namespace prototype
 
 	bool window::begin_frame()
 	{
-		if(!valid())
-			return false;
-
 		window_internal *wi = window_internal::get(mInternal);
 		if(!wi->setup_dc() || !wi->setup_rc())
 			return false;
@@ -733,9 +721,6 @@ namespace prototype
 
 	void window::end_frame()
 	{
-		if(!valid())
-			return;
-
 		window_internal *wi = window_internal::get(mInternal);
 		if(wi->dc)
 			SwapBuffers(wi->dc);
@@ -743,9 +728,6 @@ namespace prototype
 
 	bool window::grab_mouse()
 	{
-		if(!valid())
-			return false;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		SetCapture(wi->handle);
 
@@ -777,65 +759,62 @@ namespace prototype
 
 	void window::repaint()
 	{
-		if(!valid())
-			return;
-
 		window_internal *wi = window_internal::get(mInternal);
 		RedrawWindow(wi->handle, NULL, NULL, RDW_INTERNALPAINT);
 	}
 
 	void window::paint()
 	{
-		event evt(this);
-		mPainted(&evt);
+		window_event evt(this);
+		mPainted(evt);
 	}
 
 	void window::key_down(key _key)
 	{
 		key_event evt(this, _key, true);
-		mKeyDown(&evt);
+		mKeyDown(evt);
 	}
 
 	void window::key_pressed(key _key)
 	{
 		key_event evt(this, _key, true);
-		mKeyPressed(&evt);
+		mKeyPressed(evt);
 	}
 
 	void window::key_typed(wchar_t _chr)
 	{
 		character_event evt(this, _chr);
-		mKeyTyped(&evt);
+		mKeyTyped(evt);
 	}
 
 	void window::key_up(key _key)
 	{
 		key_event evt(this, _key, false);
-		mKeyUp(&evt);
+		mKeyUp(evt);
 	}
 
 	void window::mouse_move(int _nx, int _ny)
 	{
 		mouse_event evt(this, _nx, _ny);
-		mMouseMove(&evt);
+		mMouseMove(evt);
 	}
 
 	void window::mouse_down(key _btn)
 	{
 		key_event evt(this, _btn, true);
-		mMouseDown(&evt);
+		mMouseDown(evt);
 	}
 
 	void window::mouse_double_click(key _btn)
 	{
 		key_event evt(this, _btn, true);
-		mMouseDblClick(&evt);
+		mMouseDblClick(evt);
 	}
 
 	void window::mouse_up(key _btn)
 	{
 		key_event evt(this, _btn, false);
-		mMouseUp(&evt);
+		mMouseUp(evt);
 	}
 
 	bool window::init()

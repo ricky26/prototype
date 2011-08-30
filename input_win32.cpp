@@ -18,12 +18,6 @@ namespace prototype
 			mX.acquire();
 			mY.acquire();
 		}
-
-		~mouse_win32()
-		{
-			mX.release();
-			mY.release();
-		}
 		
 		relative_input_control mX;
 		relative_input_control mY;

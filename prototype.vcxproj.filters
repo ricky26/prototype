@@ -51,6 +51,12 @@
     <ClInclude Include="include\prototype\key.h">
       <Filter>Header Files\prototype</Filter>
     </ClInclude>
+    <ClInclude Include="include\prototype\model.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\mesh.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\window_win32.cpp">

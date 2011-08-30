@@ -16,11 +16,11 @@ namespace prototype
 
 		void update(bool _v);
 
-		PROTOTYPE_INLINE delegate &on_triggered() { return mTriggered; }
+		PROTOTYPE_INLINE delegate<> &on_triggered() { return mTriggered; }
 
 	private:
 		bool mValue;
-		delegate mTriggered;
+		delegate<> mTriggered;
 	};
 
 	class PROTOTYPE_API triggered_event: public event

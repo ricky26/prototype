@@ -53,8 +53,8 @@ namespace prototype
 	//
 
 	input_driver::drivers_t input_driver::gDrivers;
-	delegate input_driver::gDriverAdded;
-	delegate input_driver::gDriverRemoved;
+	delegate<input::driver_added_event> input_driver::gDriverAdded;
+	delegate<input::driver_removed_event> input_driver::gDriverRemoved;
 
 	input_driver::input_driver(std::string const& _nm)
 		: driver(_nm)
@@ -73,7 +73,7 @@ namespace prototype
 
 		mDevices.insert(_ctl);
 		input::device_added_event evt(this, _ctl.get());
-		mDeviceAdded(&evt);
+		mDeviceAdded(evt);
 		return true;
 	}
 
@@ -84,7 +84,7 @@ namespace prototype
 			return;
 
 		input::device_removed_event evt(this, _ctl.get());
-		mDeviceRemoved(&evt);
+		mDeviceRemoved(evt);
 		mDevices.erase(it);
 	}
 
@@ -94,14 +94,14 @@ namespace prototype
 			return false;
 
 		input::driver_added_event evt(this);
-		gDriverAdded(&evt);
+		gDriverAdded(evt);
 		return true;
 	}
 
 	void input_driver::shutdown()
 	{
 		input::driver_removed_event evt(this);
-		gDriverRemoved(&evt);
+		gDriverRemoved(evt);
 
 		driver::shutdown();
 	}
@@ -111,18 +111,17 @@ namespace prototype
 	//
 	
 	input_controller::input_controller()
-		: mDrvAHandler(std::bind(&input_controller::driver_added, this, _1)),
-			mDrvRHandler(std::bind(&input_controller::driver_removed, this, _1)),
-			mDAHandler(std::bind(&input_controller::device_added, this, _1)),
-			mDRHandler(std::bind(&input_controller::device_removed, this, _1))
 	{
-		input_driver::on_driver_added() += &mDrvAHandler;
-		input_driver::on_driver_removed() += &mDrvRHandler;
+		mVAHandler = input_driver::on_driver_added() += std::bind(&input_controller::driver_added, this, _1);
+		mVRHandler = input_driver::on_driver_removed() += std::bind(&input_controller::driver_removed, this, _1);
 
 		std::for_each(input_driver::drivers().begin(), input_driver::drivers().end(),
 			[this](handle<input_driver> const& _drv) {
-				_drv->on_device_added() += &mDAHandler;
-				_drv->on_device_removed() += &mDRHandler;
+				pair_t vals;
+				vals.first = _drv->on_device_added() += std::bind(&input_controller::device_added, this, _1);
+				vals.second = _drv->on_device_removed() += std::bind(&input_controller::device_added, this, _1);
+
+				mDHandler.insert(input_controller::device_map_t::value_type(_drv, vals));
 		});
 	}
 
@@ -130,42 +129,50 @@ namespace prototype
 	{
 		std::for_each(input_driver::drivers().begin(), input_driver::drivers().end(),
 			[this](handle<input_driver> const& _drv) {
-				_drv->on_device_added() -= &mDAHandler;
-				_drv->on_device_removed() -= &mDRHandler;
+				auto it = mDHandler.find(_drv);
+				if(it != mDHandler.end())
+				{
+					_drv->on_device_added() -= it->second.first;
+					_drv->on_device_removed() -= it->second.second;
+				}
 		});
 
-		input_driver::on_driver_added() -= &mDrvAHandler;
-		input_driver::on_driver_removed() -= &mDrvRHandler;
+		input_driver::on_driver_added() -= mVAHandler;
+		input_driver::on_driver_removed() -= mVRHandler;
 	}
 		
-	void input_controller::driver_added(event *_evt)
+	bool input_controller::driver_added(input::driver_added_event const& _evt)
 	{
-		input::driver_added_event *dae
-			= static_cast<input::driver_added_event*>(_evt);
-
-		input_driver *drv = dae->driver();
-		drv->on_device_added() += &mDAHandler;
-		drv->on_device_removed() += &mDRHandler;
+		pair_t vals;
+		input_driver *drv = _evt.driver();
+		vals.first = drv->on_device_added() += std::bind(&input_controller::device_added, this, _1);
+		vals.second = drv->on_device_removed() += std::bind(&input_controller::device_removed, this, _1);
+		mDHandler.insert(input_controller::device_map_t::value_type(drv, vals));
+		return false;
 	}
 
-	void input_controller::driver_removed(event *_evt)
+	bool input_controller::driver_removed(input::driver_removed_event const& _evt)
 	{
-		input::driver_removed_event *dae
-			= static_cast<input::driver_removed_event*>(_evt);
-
-		input_driver *drv = dae->driver();
-		drv->on_device_added() -= &mDAHandler;
-		drv->on_device_removed() -= &mDRHandler;
+		input_driver *drv = _evt.driver();
+		auto it = mDHandler.find(drv);
+		if(it != mDHandler.end())
+		{
+			drv->on_device_added() -= it->second.first;
+			drv->on_device_removed() -= it->second.second;
+		}
+		return false;
 	}
 
-	void input_controller::device_added(event *_evt)
+	bool input_controller::device_added(input::device_added_event const&_evt)
 	{
 		mDeviceAdded(_evt);
+		return false;
 	}
 
-	void input_controller::device_removed(event *_evt)
+	bool input_controller::device_removed(input::device_removed_event const&_evt)
 	{
 		mDeviceRemoved(_evt);
+		return false;
 	}
 
 	namespace input
