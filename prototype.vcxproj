@@ -50,7 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>GLEW_MX;GLEW_STATIC;WIN32;_DEBUG;_WINDOWS;_USRDLL;PROTOTYPE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\netlib\include;$(SolutionDir)\glew\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)\..\netlib\include;$(ProjectDir)\..\glew\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -91,7 +91,7 @@
     <ClInclude Include="include\prototype\window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\glew\src\glew.c" />
+    <ClCompile Include="$(ProjectDir)\..\glew\src\glew.c" />
     <ClCompile Include="input_win32.cpp" />
     <ClCompile Include="key.cpp" />
     <ClCompile Include="src\binding.cpp" />
