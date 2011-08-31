@@ -90,7 +90,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(ProjectDir)\..\glew\src\glew.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\glew</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
