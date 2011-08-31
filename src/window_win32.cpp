@@ -484,8 +484,6 @@ namespace prototype
 	bool window::create(std::string const& _title)
 	{
 		window_internal *wi = window_internal::get(mInternal);
-		if(valid())
-			return false;
 
 		std::wstring wtitle = i18n::utf8_to_utf16(_title);
 		HWND win = CreateWindowW(window_class_name, wtitle.c_str(), windowed_style,
@@ -494,15 +492,13 @@ namespace prototype
 			return false;
 
 		SetWindowLongPtr(win, GWLP_USERDATA, (LONG)this);
+		SetWindowPos(win, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		wi->handle = win;
 		return true;
 	}
 
 	std::string window::title() const
 	{
-		if(!valid())
-			return std::string();
-		
 		window_internal *wi = window_internal::get(mInternal);
 		std::wstring wstr;
 
@@ -517,9 +513,6 @@ namespace prototype
 
 	void window::set_title(std::string const& _title)
 	{
-		if(!valid())
-			return;
-		
 		window_internal *wi = window_internal::get(mInternal);
 		std::wstring wstr = i18n::utf8_to_utf16(_title);
 		SetWindowTextW(wi->handle, wstr.c_str());
@@ -527,9 +520,6 @@ namespace prototype
 
 	int window::width() const
 	{
-		if(!valid())
-			return 0;
-		
 		window_internal *wi = window_internal::get(mInternal);
 
 		RECT rect;
@@ -541,9 +531,6 @@ namespace prototype
 
 	int window::height() const
 	{
-		if(!valid())
-			return 0;
-		
 		window_internal *wi = window_internal::get(mInternal);
 
 		RECT rect;
@@ -555,11 +542,11 @@ namespace prototype
 
 	void window::set_size(int _sx, int _sy)
 	{
-		if(!valid())
-			return;
-		
 		window_internal *wi = window_internal::get(mInternal);
-		SetWindowPos(wi->handle, NULL, 0, 0, _sx, _sy, SWP_NOMOVE | SWP_NOZORDER);
+
+		RECT rect;
+		GetWindowRect(wi->handle, &rect);
+		MoveWindow(wi->handle, rect.left, rect.top, _sx, _sy, TRUE);
 	}
 
 	bool window::active() const
