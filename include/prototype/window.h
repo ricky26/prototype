@@ -8,6 +8,7 @@ namespace prototype
 {
 	using netlib::event;
 	using netlib::delegate;
+
 	enum key;
 	class window;
 

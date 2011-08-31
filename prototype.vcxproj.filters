@@ -57,6 +57,12 @@
     <ClInclude Include="include\prototype\mesh.h">
       <Filter>Header Files\prototype</Filter>
     </ClInclude>
+    <ClInclude Include="include\prototype\matrix.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
+    <ClInclude Include="include\prototype\point.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\window_win32.cpp">
@@ -91,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="$(ProjectDir)\..\glew\src\glew.c">
       <Filter>Source Files\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -85,8 +85,10 @@
     <ClInclude Include="include\prototype\i18n.h" />
     <ClInclude Include="include\prototype\input.h" />
     <ClInclude Include="include\prototype\key.h" />
+    <ClInclude Include="include\prototype\matrix.h" />
     <ClInclude Include="include\prototype\mesh.h" />
     <ClInclude Include="include\prototype\model.h" />
+    <ClInclude Include="include\prototype\point.h" />
     <ClInclude Include="include\prototype\prototype.h" />
     <ClInclude Include="include\prototype\window.h" />
   </ItemGroup>
@@ -94,6 +96,7 @@
     <ClCompile Include="$(ProjectDir)\..\glew\src\glew.c" />
     <ClCompile Include="input_win32.cpp" />
     <ClCompile Include="key.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="src\binding.cpp" />
     <ClCompile Include="src\driver.cpp" />
     <ClCompile Include="src\i18n.cpp" />
