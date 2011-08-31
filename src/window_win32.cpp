@@ -436,6 +436,10 @@ namespace prototype
 				case WM_CHAR:
 					win->key_typed(_wparam);
 					return 0;
+
+				case WM_CLOSE:
+					win->closed();
+					return 0;
 				}
 			}
 
@@ -754,6 +758,13 @@ namespace prototype
 	{
 		window_event evt(this);
 		mPainted(evt);
+	}
+
+	void window::closed()
+	{
+		window_event evt(this);
+		if(!mClosed(evt))
+			close();
 	}
 
 	void window::key_down(key _key)

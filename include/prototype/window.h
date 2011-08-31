@@ -126,6 +126,7 @@ namespace prototype
 
 		PROTOTYPE_INLINE netlib::delegate<window_event> &on_resized() { return mResized; }
 		PROTOTYPE_INLINE netlib::delegate<window_event> &on_painted() { return mPainted; }
+		PROTOTYPE_INLINE netlib::delegate<window_event> &on_closed() { return mClosed; }
 		
 		PROTOTYPE_INLINE netlib::delegate<key_event> &on_key_down() { return mKeyDown; }
 		PROTOTYPE_INLINE netlib::delegate<key_event> &on_key_pressed() { return mKeyPressed; }
@@ -143,6 +144,7 @@ namespace prototype
 
 	protected:
 		virtual void paint();
+		virtual void closed();
 
 		virtual void key_down(key _key);
 		virtual void key_pressed(key _key);
@@ -159,6 +161,7 @@ namespace prototype
 
 		delegate<window_event> mResized;
 		delegate<window_event> mPainted;
+		delegate<window_event> mClosed;
 
 		delegate<key_event> mKeyDown;
 		delegate<key_event> mKeyPressed;
