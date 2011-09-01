@@ -28,13 +28,11 @@
 namespace prototype
 {
 	PROTOTYPE_API bool init();
-	PROTOTYPE_API void shutdown();
-	PROTOTYPE_API void exit(int _val=0);
-	PROTOTYPE_API int exit_value();
-	PROTOTYPE_API bool think();
-	PROTOTYPE_API int run_main_loop();
 
+	using netlib::shutdown;
 	using netlib::running;
-
-	PROTOTYPE_API uint64_t time();
+	using netlib::exit;
+	using netlib::exit_value;
+	using netlib::think;
+	using netlib::run_main_loop;
 }

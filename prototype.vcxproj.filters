@@ -63,15 +63,15 @@
     <ClInclude Include="include\prototype\point.h">
       <Filter>Header Files\prototype</Filter>
     </ClInclude>
+    <ClInclude Include="include\prototype\shader.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\window_win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\i18n.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\prototype_win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\input.cpp">
@@ -89,16 +89,22 @@
     <ClCompile Include="src\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="input_win32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="key.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="$(ProjectDir)\..\glew\src\glew.c">
       <Filter>Source Files\glew</Filter>
     </ClCompile>
-    <ClCompile Include="mesh.cpp">
+    <ClCompile Include="src\input_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\key.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prototype.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -270,9 +270,13 @@ namespace prototype
 
 			last_rc = rc;
 			cs.unlock();
+			
+			HGLRC sRC = wglGetCurrentContext();
+			HDC sDC = wglGetCurrentDC();
+			wglMakeCurrent(dc, rc);
 
-			if(glewContextInit(&context) != GL_TRUE)
-				return false;
+			bool ret = glewContextInit(&context) == GL_TRUE;
+			wglMakeCurrent(sDC, sRC);
 
 			return true;
 		}
