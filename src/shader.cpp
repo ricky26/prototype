@@ -1,105 +1,251 @@
 #include "prototype/shader.h"
+#include <netlib/ref_counted.h>
+#include <netlib/internal.h>
 #include <algorithm>
+
+using namespace netlib;
 
 namespace prototype
 {
+	//
+	// shader_internal
+	//
+
+	struct shader_internal: public ref_counted
+	{
+		GLuint id;
+
+		shader_internal(): id(0)
+		{
+			acquire();
+		}
+
+		~shader_internal()
+		{
+			if(id && glewGetContext())
+				glDeleteShader(id);
+		}
+
+		static shader_internal *get(void *_p)
+		{
+			return internal::get<shader_internal>(_p);
+		}
+	};
+
+	shader::shader()
+	{
+		shader_internal *si = internal::create<shader_internal>(mInternal);
+	}
+
 	shader::shader(GLenum _type)
 	{
-		mID = glCreateShader(_type);
+		shader_internal *si = internal::create<shader_internal>(mInternal);
+		create(_type);
 	}
 
 	shader::shader(GLenum _type, std::string const& _src)
 	{
-		mID = glCreateShader(_type);
+		shader_internal *si = internal::create<shader_internal>(mInternal);
+		create(_type);
 		set_source(_src);
+	}
+
+	shader::shader(shader const& _b)
+	{
+		shader_internal *si = shader_internal::get(_b.mInternal);
+		si->acquire();
+		mInternal = si;
 	}
 
 	shader::~shader()
 	{
-		glDeleteShader(mID);
+		shader_internal *si = shader_internal::get(mInternal);
+		si->release();
+	}
+	
+	bool shader::valid() const
+	{
+		shader_internal *si = shader_internal::get(mInternal);
+		return si->id != 0;
+	}
+
+	GLuint shader::id() const
+	{
+		shader_internal *si = shader_internal::get(mInternal);
+		return si->id;
+	}
+
+	bool shader::create(GLenum _type)
+	{
+		shader_internal *si = shader_internal::get(mInternal);
+		if(si->id)
+			return false;
+
+		si->id = glCreateShader(_type);
+		return si->id != 0;
 	}
 
 	std::string shader::source() const
 	{
+		shader_internal *si = shader_internal::get(mInternal);
+
 		GLint len;
-		glGetShaderiv(mID, GL_SHADER_SOURCE_LENGTH, &len);
+		glGetShaderiv(si->id, GL_SHADER_SOURCE_LENGTH, &len);
 
 		std::string ret;
 		ret.resize(len);
-		glGetShaderSource(mID, len, NULL, (GLchar*)ret.data());
+		glGetShaderSource(si->id, len, NULL, (GLchar*)ret.data());
 
 		return ret;
 	}
 
 	void shader::set_source(std::string const& _str)
 	{
+		shader_internal *si = shader_internal::get(mInternal);
+
 		GLint len = _str.size();
 		GLchar *str = (GLchar*)_str.data();
-		glShaderSource(mID, 1, (const GLchar**)&str, &len);
+		glShaderSource(si->id, 1, (const GLchar**)&str, &len);
 	}
 
 	bool shader::compile()
 	{
-		glCompileShader(mID);
+		shader_internal *si = shader_internal::get(mInternal);
+		glCompileShader(si->id);
 		return compiled();
 	}
 
 	bool shader::compiled() const
 	{
+		shader_internal *si = shader_internal::get(mInternal);
+
 		GLint status;
-		glGetShaderiv(mID, GL_COMPILE_STATUS, &status);
+		glGetShaderiv(si->id, GL_COMPILE_STATUS, &status);
 
 		return status == GL_TRUE;
 	}
 	
 	std::string shader::error()
 	{
+		shader_internal *si = shader_internal::get(mInternal);
+
 		GLint len;
-		glGetShaderiv(mID, GL_INFO_LOG_LENGTH, &len);
+		glGetShaderiv(si->id, GL_INFO_LOG_LENGTH, &len);
 
 		std::string ret;
 		ret.resize(len);
-		glGetShaderInfoLog(mID, len, NULL, (GLchar*)ret.data());
+		glGetShaderInfoLog(si->id, len, NULL, (GLchar*)ret.data());
 		return ret;
 	}
 
+	shader &shader::operator =(shader const& _s)
+	{
+		shader_internal *si = shader_internal::get(mInternal);
+		si->acquire();
+		mInternal = si;
+		return *this;
+	}
+
+	//
+	// shader_program_internal
 	//
 
-	shader_program::shader_program() : mCurrentAttr(0)
+	struct shader_program_internal: public ref_counted
 	{
-		mID = glCreateProgram();
+		GLuint id;
+		shader_program::list_t shaders;
+		size_t current_attr;
+
+		shader_program_internal(): id(0), current_attr(0)
+		{
+			acquire();
+		}
+
+		~shader_program_internal()
+		{
+			if(id && glewGetContext())
+				glDeleteProgram(id);
+		}
+
+		static shader_program_internal *get(void *_p)
+		{
+			return internal::get<shader_program_internal>(_p);
+		}
+	};
+
+	//
+
+	shader_program::shader_program()
+	{
+		shader_program_internal *si = internal::create<shader_program_internal>(mInternal);
 	}
 
 	shader_program::~shader_program()
 	{
-		glDeleteProgram(mID);
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		si->release();
 	}
 
-	void shader_program::activate()
+	bool shader_program::valid() const
 	{
-		glUseProgram(mID);
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		return si->id != 0;
 	}
 
-	void shader_program::deactivate()
+	GLuint shader_program::id() const
+	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		return si->id;
+	}
+
+	bool shader_program::create()
+	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		if(si->id)
+			return false;
+
+		si->id = glCreateProgram();
+		return si->id != 0;
+	}
+	
+	shader_program::list_t const& shader_program::shaders() const
+	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		return si->shaders;
+	}
+
+	void shader_program::activate() const
+	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		glUseProgram(si->id);
+	}
+
+	void shader_program::deactivate() const
 	{
 		glUseProgram(0);
 	}
 
-	bool shader_program::attach_shader(shader_t const& _h)
+	bool shader_program::attach_shader(shader const& _h)
 	{
-		mShaders.push_back(_h);
-		glAttachShader(mID, _h->id());
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		if(!si->id && !create())
+			return false;
+
+		si->shaders.push_back(_h);
+		glAttachShader(si->id, _h.id());
 		return true;
 	}
 
-	void shader_program::detach_shader(shader_t const& _h)
+	void shader_program::detach_shader(shader const& _h)
 	{
-		std::remove_if(mShaders.begin(), mShaders.end(),
-			[this, _h](shader_t const& _t) -> bool
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+
+		std::remove_if(si->shaders.begin(), si->shaders.end(),
+			[this, si, _h](shader const& _t) -> bool
 		{
 			if(_t == _h)
 			{
-				glDetachShader(mID, _h->id());
+				glDetachShader(si->id, _h.id());
 				return true;
 			}
 
@@ -109,31 +255,52 @@ namespace prototype
 
 	bool shader_program::link()
 	{
-		glLinkProgram(mID);
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		glLinkProgram(si->id);
 		return linked();
 	}
 
 	bool shader_program::linked() const
 	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+
 		GLint status;
-		glGetProgramiv(mID, GL_LINK_STATUS, &status);
+		glGetProgramiv(si->id, GL_LINK_STATUS, &status);
 		return status == GL_TRUE;
 	}
 	
-	std::string shader_program::error()
+	std::string shader_program::error() const
 	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+
 		GLint len;
-		glGetProgramiv(mID, GL_INFO_LOG_LENGTH, &len);
+		glGetProgramiv(si->id, GL_INFO_LOG_LENGTH, &len);
 
 		std::string ret;
 		ret.resize(len);
-		glGetProgramInfoLog(mID, len, NULL, (GLchar*)ret.data());
+		glGetProgramInfoLog(si->id, len, NULL, (GLchar*)ret.data());
 		return ret;
 	}
 	
-	size_t shader_program::bind_attribute(std::string const& _nm)
+	bool shader_program::bind_attribute(std::string const& _nm, GLuint _attr)
 	{
-		glBindAttribLocation(mID, mCurrentAttr, _nm.c_str());
-		return mCurrentAttr++;
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+
+		glBindAttribLocation(si->id, _attr, _nm.c_str());
+		return glGetError() != GL_NO_ERROR;
+	}
+	
+	GLuint shader_program::find_uniform(std::string const& _nm) const
+	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		return glGetUniformLocation(si->id, _nm.c_str());
+	}
+
+	shader_program &shader_program::operator =(shader_program const& _s)
+	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		si->acquire();
+		mInternal = si;
+		return *this;
 	}
 }

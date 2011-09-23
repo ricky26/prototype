@@ -6,13 +6,17 @@
 #include <netlib/thread.h>
 #include <Windows.h>
 #include <Windowsx.h>
+#include <GL/wglew.h>
 
 using namespace netlib;
+
+#define wglewGetContext() (prototype::wglew_context)
 
 namespace prototype
 {
 	static const wchar_t window_class_name[] = L"PrototypeWindow";
 	static GLEWContext *glew_context = NULL;
+	static WGLEWContext *wglew_context = NULL;
 	static const LONG_PTR windowed_style = WS_OVERLAPPEDWINDOW;
 	static const LONG_PTR fullscreen_style = WS_POPUP;
 
@@ -184,7 +188,9 @@ namespace prototype
 		HWND handle;
 		HDC dc;
 		HGLRC rc;
+		int width, height;
 		GLEWContext context;
+		WGLEWContext wcontext;
 		bool fullscreen;
 		DEVMODEW mode;
 		RECT rect;
@@ -205,8 +211,17 @@ namespace prototype
 
 		~window_internal()
 		{
+			if(glew_context == &context)
+			{
+				glew_context = NULL;
+				wglew_context = NULL;
+			}
+
 			if(rc)
 			{
+				if(wglGetCurrentContext() == rc)
+					wglMakeCurrent(dc, 0);
+
 				wglDeleteContext(rc);
 				rc = NULL;
 			}
@@ -254,31 +269,62 @@ namespace prototype
 
 		inline bool setup_rc()
 		{
-			if(rc)
-				return true;
-
-			rc = wglCreateContext(dc);
-			if(!rc)
-				return false;
-
 			static HGLRC last_rc = NULL;
 			static netlib::critical_section cs;
-			cs.lock();
 
-			if(last_rc)
-				wglShareLists(last_rc, rc);
-
-			last_rc = rc;
-			cs.unlock();
+			if(rc)
+				return true;
 			
 			HGLRC sRC = wglGetCurrentContext();
 			HDC sDC = wglGetCurrentDC();
-			wglMakeCurrent(dc, rc);
 
-			bool ret = glewContextInit(&context) == GL_TRUE;
+			HGLRC tmpRC = wglCreateContext(dc);
+			if(!tmpRC)
+				return false;
+			wglMakeCurrent(dc, tmpRC);
+			
+			glew_context = &context;
+			wglew_context = &wcontext;
+			bool ret = glewContextInit(&context) == GLEW_OK;
+			if(ret)
+				ret = wglewContextInit(&wcontext) == GLEW_OK;
+			if(!ret)
+				return false;
+
+			int attribs[] = {
+				WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+				WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+				WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+				0
+			};
+			rc = wcontext.__wglewCreateContextAttribsARB(dc, last_rc, attribs);
+			if(!rc)
+				return false;
+
+			wglMakeCurrent(dc, rc);
+			glewContextInit(&context);
+			wglewContextInit(&wcontext);
+
+			cs.lock();
+
+			if(!rc)
+			{
+				wglShareLists(last_rc, tmpRC);
+				last_rc = tmpRC;
+			}
+			else
+				last_rc = rc;
+
+			cs.unlock();
+			
 			wglMakeCurrent(sDC, sRC);
 
-			return true;
+			if(!rc)
+				rc = tmpRC;
+			else
+				wglDeleteContext(tmpRC);
+
+			return ret;
 		}
 
 		static LRESULT CALLBACK window_proc(HWND _win,
@@ -322,6 +368,11 @@ namespace prototype
 
 				case WM_SIZE:
 					{
+						RECT rect;
+						GetClientRect(wi->handle, &rect);
+						wi->width = rect.right - rect.left;
+						wi->height = rect.bottom - rect.top;
+
 						RedrawWindow(wi->handle, NULL, NULL, RDW_INTERNALPAINT);
 						window_event evt(win);
 						win->on_resized()(evt);
@@ -502,6 +553,8 @@ namespace prototype
 		SetWindowLongPtr(win, GWLP_USERDATA, (LONG)this);
 		SetWindowPos(win, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		wi->handle = win;
+		wi->width = 0;
+		wi->height = 0;
 		return true;
 	}
 
@@ -529,23 +582,13 @@ namespace prototype
 	int window::width() const
 	{
 		window_internal *wi = window_internal::get(mInternal);
-
-		RECT rect;
-		if(GetWindowRect(wi->handle, &rect) == FALSE)
-			return 0;
-
-		return rect.right - rect.left;
+		return wi->width;
 	}
 
 	int window::height() const
 	{
 		window_internal *wi = window_internal::get(mInternal);
-
-		RECT rect;
-		if(GetWindowRect(wi->handle, &rect) == FALSE)
-			return 0;
-
-		return rect.bottom - rect.top;
+		return wi->height;
 	}
 
 	void window::set_size(int _sx, int _sy)
@@ -711,6 +754,7 @@ namespace prototype
 
 		wglMakeCurrent(wi->dc, wi->rc);
 		glew_context = &wi->context;
+		wglew_context = &wi->wcontext;
 		return true;
 	}
 

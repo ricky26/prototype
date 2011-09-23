@@ -2,8 +2,7 @@
 #include "gl.h"
 #include <netlib/data.h>
 #include <netlib/ref_counted.h>
-#include <string>
-#include <vector>
+#include <map>
 
 #pragma once
 
@@ -12,72 +11,140 @@ namespace prototype
 	using netlib::ref_counted;
 	using netlib::handle;
 	using netlib::data;
+	
+	PROTOTYPE_API size_t opengl_type_size(GLenum _type);
+	PROTOTYPE_API size_t opengl_element_count(GLenum _type, size_t _num_indices);
 
-	/**
-	 * A class for storing a mesh.
-	 */
-	class PROTOTYPE_API mesh: public ref_counted
+	class PROTOTYPE_API vertex_element
+	{
+	public:
+		vertex_element();
+		vertex_element(GLenum _type, size_t _stride, size_t _offset, size_t _count=1, bool _norm=false);
+
+		PROTOTYPE_INLINE GLenum type() const { return mType; }
+		PROTOTYPE_INLINE size_t size() const { return opengl_type_size(mType); }
+		PROTOTYPE_INLINE size_t stride() const { return mStride; }
+		PROTOTYPE_INLINE size_t offset() const { return mOffset; }
+		PROTOTYPE_INLINE size_t count() const { return mCount; }
+		PROTOTYPE_INLINE bool normalize() const { return mNorm; }
+
+		void bind(GLuint _idx) const;
+		void unbind(GLuint _idx) const;
+
+	private:
+		GLenum mType;
+		size_t mStride;
+		size_t mOffset;
+		size_t mCount;
+		bool mNorm;
+	};
+
+	class PROTOTYPE_API vertex_buffer
+	{
+	public:
+		vertex_buffer();
+		vertex_buffer(GLenum _usage, size_t _sz);
+		vertex_buffer(GLenum _usage, size_t _sz, void *_buffer);
+		vertex_buffer(vertex_buffer const& _b);
+		~vertex_buffer();
+
+		GLuint id() const;
+		bool valid() const;
+
+		bool create();
+
+		void bind(GLenum _as) const;
+		void unbind(GLenum _as) const;
+		
+		void set_data(GLenum _usage, size_t _sz, void *_data) const;
+		NETLIB_INLINE void set_data(GLenum _usage, size_t _sz) const { set_data(_usage, _sz, NULL); }
+
+		void update_data(size_t _start, size_t _cnt, void *_buffer) const;
+		NETLIB_INLINE void update_data(size_t _sz, void *_buffer) const { update_data(0, _sz, _buffer); }
+		
+		void draw(GLenum _type, size_t _start, size_t _count) const;
+		PROTOTYPE_INLINE void draw(GLenum _type, size_t _count) const { draw(_type, 0, _count); }
+		void draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, size_t _start, size_t _cnt) const;
+		PROTOTYPE_INLINE void draw(GLenum _type, vertex_element const& _iel, size_t _start, size_t _cnt) const { draw(_type, *this, _iel, _start, _cnt); }
+		void draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, size_t _count) const;
+		PROTOTYPE_INLINE void draw(GLenum _type, vertex_element const& _iel, size_t _count) const { draw(_type, *this, _iel, _count); }
+		
+		vertex_buffer &operator =(vertex_buffer const& _b);
+		PROTOTYPE_INLINE bool operator ==(vertex_buffer const& _b) const { return mInternal == _b.mInternal; }
+		PROTOTYPE_INLINE bool operator !=(vertex_buffer const& _b) const { return mInternal != _b.mInternal; }
+
+	private:
+		void *mInternal;
+	};
+
+	class PROTOTYPE_API vertex_array
+	{
+	public:
+		vertex_array();
+		vertex_array(vertex_array const& _a);
+		~vertex_array();
+
+		GLuint id() const;
+		bool valid() const;
+
+		bool create();
+
+		void bind() const;
+		void unbind() const;
+		
+		void draw(GLenum _type, size_t _start, size_t _count) const;
+		PROTOTYPE_INLINE void draw(GLenum _type, size_t _count) const { draw(_type, 0, _count); }
+		void draw(GLenum _type, vertex_element const& _iel, size_t _start, size_t _cnt) const;
+		void draw(GLenum _type, vertex_element const& _iel, size_t _count) const;
+		
+		vertex_array &operator =(vertex_array const& _b);
+		PROTOTYPE_INLINE bool operator ==(vertex_array const& _b) const { return mInternal == _b.mInternal; }
+		PROTOTYPE_INLINE bool operator !=(vertex_array const& _b) const { return mInternal != _b.mInternal; }
+
+	private:
+		void *mInternal;
+	};
+
+	class PROTOTYPE_API mesh
 	{
 	public:
 		struct element
 		{
-			PROTOTYPE_INLINE element(std::string const& _nm, size_t _stride=sizeof(float), size_t _offset=0, size_t _count=1)
-				: name(_nm), stride(_stride), offset(_offset), count(_count) {}
-
-			std::string name;
-			size_t stride;
-			size_t offset;
-			size_t count;
+			vertex_buffer buffer;
+			vertex_element elem;
 		};
+
+		typedef std::map<GLuint, element> elem_map_t;
 		
-		typedef handle<mesh> handle_t;
-		typedef uint32_t index_t;
-		typedef data::handle_t data_t;
+		mesh();
+		mesh(GLenum _mode);
 
-		typedef std::vector<element> elem_list_t;
+		bool valid() const;
+		bool create();
 
-		static const size_t invalid_index = -1;
+		PROTOTYPE_INLINE GLenum type() const { return mVertexType; }
+		void set_type(GLenum _type);
 
-		NETLIB_INLINE mesh() {}
-		NETLIB_INLINE mesh(data_t const& _vertices, data_t const& _indices): mData(_vertices), mIndices(_indices) {}
+		PROTOTYPE_INLINE prototype::vertex_array const& vertex_array() const { return mVertexArray; }
+		PROTOTYPE_INLINE prototype::vertex_buffer const& index_buffer() const { return mIndexBuffer; }
+		PROTOTYPE_INLINE vertex_element const& index_element() const { return mIndexElement; }
+		PROTOTYPE_INLINE size_t index_count() const { return mIndexCount; }
+		void set_indices(prototype::vertex_buffer const& _buff, vertex_element const& _el, size_t _cnt);
 
-		NETLIB_INLINE data_t const& vertices() const { return mData; }
-		NETLIB_INLINE void set_vertices(data_t const& _d) { mData = _d; }
-		NETLIB_INLINE data_t const& indices() const { return mIndices; }
-		NETLIB_INLINE void set_indices(data_t const& _d) { mIndices = _d; }
+		PROTOTYPE_INLINE elem_map_t const& elements() const { return mVertexElements; }
+		bool add_element(GLuint _attr, vertex_buffer const& _buff, vertex_element const& _el);
+		void remove_element(GLuint _attr);
+		void clear_elements();
 
-		size_t add_element(element const& _el);
-		void remove_element(size_t _idx);
-
-		const element &element_at(size_t _idx) const;
-		size_t find(std::string const& _nm) const;
+		void draw();
+		void draw(size_t _off, size_t _cnt);
 
 	private:
-		data_t mData;
-		data_t mIndices;
-		elem_list_t mList;
+		GLenum mVertexType;
+		prototype::vertex_buffer mIndexBuffer;
+		vertex_element mIndexElement;
+		size_t mIndexCount;
+		elem_map_t mVertexElements;
+		prototype::vertex_array mVertexArray;
 	};
-
-	namespace render
-	{
-		PROTOTYPE_API void render_mesh(mesh::handle_t const& _msh, GLenum _type);
-
-		/**
-		 * Uploads mesh data into a buffer object.
-		 */
-		PROTOTYPE_API void update_buffer(GLenum _target, data::handle_t const& _data);
-		PROTOTYPE_API void update_buffer(GLenum _target, data::handle_t const& _data, size_t _start, size_t _end);
-
-		/**
-		 * Does the initial glBufferData call.
-		 */
-		PROTOTYPE_API GLuint create_buffer(GLenum _target, data::handle_t const& _msh, GLenum _usage);
-
-		// Shortcut for glGenBuffers/create_mesh_buffer.
-		PROTOTYPE_API void create_mesh_buffers(mesh::handle_t const& _msh, GLenum _usage, GLuint _buffers[2]);
-
-		// Binds a mesh element using glVertexAttribPointer
-		PROTOTYPE_API void bind_mesh_element(mesh::handle_t const& _msh, GLenum _type, GLboolean _norm, size_t _src, size_t _dest);
-		PROTOTYPE_API void bind_mesh_element(mesh::handle_t const& _msh, GLenum _type, GLboolean _norm, std::string const& _nm, size_t _dest);
-	}
 }

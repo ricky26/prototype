@@ -29,10 +29,5 @@ namespace prototype
 {
 	PROTOTYPE_API bool init();
 
-	using netlib::shutdown;
-	using netlib::running;
-	using netlib::exit;
-	using netlib::exit_value;
-	using netlib::think;
-	using netlib::run_main_loop;
+	using namespace netlib;
 }

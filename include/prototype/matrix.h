@@ -17,7 +17,7 @@ namespace prototype
 	};
 
 	template<size_t S, typename T>
-	struct matrix_major<S, T, true>
+	struct matrix_major<S, T, false>
 	{
 		PROTOTYPE_INLINE static size_t index(size_t _r, size_t _c)
 		{

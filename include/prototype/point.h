@@ -52,6 +52,20 @@ namespace prototype
 		}
 
 		template<bool C>
+		PROTOTYPE_INLINE self_t mult(matrix<S, T, C> const& _mat) const
+		{
+			self_t ret;
+
+			for(size_t r = 0; r < S; r++)
+			{
+				for(size_t c = 0; c < S; c++)
+					ret[r] += _mat.get(r, c)*pt[r];
+			}
+
+			return ret;
+		}
+
+		template<bool C>
 		PROTOTYPE_INLINE self_t mult(matrix<S+1, T, C> const& _mat) const
 		{
 			self_t ret;
@@ -69,6 +83,13 @@ namespace prototype
 		}
 
 		template<bool C>
+		PROTOTYPE_INLINE void multi(matrix<S, T, C> const& _mat)
+		{
+			self_t res = mult(_mat);
+			set(res);
+		}
+
+		template<bool C>
 		PROTOTYPE_INLINE void multi(matrix<S+1, T, C> const& _mat)
 		{
 			self_t res = mult(_mat);
@@ -81,7 +102,11 @@ namespace prototype
 		template<bool C>
 		PROTOTYPE_INLINE self_t operator *(matrix<S+1, T, C> const& _mat) const { return mult(_mat); }
 		template<bool C>
+		PROTOTYPE_INLINE self_t operator *(matrix<S, T, C> const& _mat) const { return mult(_mat); }
+		template<bool C>
 		PROTOTYPE_INLINE self_t &operator *=(matrix<S+1, T, C> const& _mat) { multi(_mat); return *this; }
+		template<bool C>
+		PROTOTYPE_INLINE self_t &operator *=(matrix<S, T, C> const& _mat) { multi(_mat); return *this; }
 
 	private:
 		array_t pt;

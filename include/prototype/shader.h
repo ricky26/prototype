@@ -1,6 +1,5 @@
 #include "prototype.h"
 #include "gl.h"
-#include <netlib/ref_counted.h>
 #include <vector>
 #include <string>
 
@@ -8,19 +7,19 @@
 
 namespace prototype
 {
-	using netlib::ref_counted;
-	using netlib::handle;
-
-	class PROTOTYPE_API shader: public ref_counted
+	class PROTOTYPE_API shader
 	{
 	public:
-		typedef handle<shader> handle_t;
-
+		shader();
 		shader(GLenum _type);
 		shader(GLenum _type, std::string const& _src);
-		virtual ~shader();
+		shader(shader const& _b);
+		~shader();
+		
+		bool valid() const;
+		GLuint id() const;
 
-		NETLIB_INLINE GLuint id() const { return mID; }
+		bool create(GLenum _type);
 
 		std::string source() const;
 		void set_source(std::string const& _str);
@@ -29,40 +28,49 @@ namespace prototype
 		bool compiled() const;
 
 		std::string error();
+		
+		shader &operator =(shader const& _b);
+		PROTOTYPE_INLINE bool operator ==(shader const& _b) const { return mInternal == _b.mInternal; }
+		PROTOTYPE_INLINE bool operator !=(shader const& _b) const { return mInternal != _b.mInternal; }
 
 	private:
-		GLuint mID;
+		void *mInternal;
 	};
 
-	class PROTOTYPE_API shader_program: public ref_counted
+	class PROTOTYPE_API shader_program
 	{
 	public:
-		typedef handle<shader_program> handle_t;
-		typedef shader::handle_t shader_t;
-		typedef std::vector<shader_t> list_t;
+		typedef std::vector<shader> list_t;
 
 		shader_program();
-		virtual ~shader_program();
+		shader_program(shader_program const& _p);
+		~shader_program();
 
-		NETLIB_INLINE GLuint id() const { return mID; }
+		bool valid() const;
+		GLuint id() const;
 
-		void activate();
-		void deactivate();
+		bool create();
 
-		bool attach_shader(shader_t const& _h);
-		void detach_shader(shader_t const& _h);
-		list_t const& shaders() const { return mShaders; }
+		void activate() const;
+		void deactivate() const;
+
+		bool attach_shader(shader const& _h);
+		void detach_shader(shader const& _h);
+		list_t const& shaders() const;
 
 		bool link();
 		bool linked() const;
 
-		std::string error();
+		std::string error() const;
 
-		size_t bind_attribute(std::string const& _nm);
+		bool bind_attribute(std::string const& _nm, GLuint _attr);
+		GLuint find_uniform(std::string const& _nm) const;
+		
+		shader_program &operator =(shader_program const& _b);
+		PROTOTYPE_INLINE bool operator ==(shader_program const& _b) const { return mInternal == _b.mInternal; }
+		PROTOTYPE_INLINE bool operator !=(shader_program const& _b) const { return mInternal != _b.mInternal; }
 
 	private:
-		GLuint mID;
-		list_t mShaders;
-		size_t mCurrentAttr;
+		void *mInternal;
 	};
 }
