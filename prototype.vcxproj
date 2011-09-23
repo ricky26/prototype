@@ -87,7 +87,6 @@
     <ClInclude Include="include\prototype\key.h" />
     <ClInclude Include="include\prototype\matrix.h" />
     <ClInclude Include="include\prototype\mesh.h" />
-    <ClInclude Include="include\prototype\meshes.h" />
     <ClInclude Include="include\prototype\model.h" />
     <ClInclude Include="include\prototype\point.h" />
     <ClInclude Include="include\prototype\prototype.h" />
