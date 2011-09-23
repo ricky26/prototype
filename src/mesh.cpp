@@ -1,5 +1,4 @@
 #include "prototype/mesh.h"
-#include "prototype/meshes.h"
 #include <netlib/internal.h>
 #include <netlib/ref_counted.h>
 #include <algorithm>
