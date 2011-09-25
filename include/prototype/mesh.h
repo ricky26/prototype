@@ -44,7 +44,7 @@ namespace prototype
 	public:
 		vertex_buffer();
 		vertex_buffer(GLenum _usage, size_t _sz);
-		vertex_buffer(GLenum _usage, size_t _sz, void *_buffer);
+		vertex_buffer(GLenum _usage, size_t _sz, const void *_buffer);
 		vertex_buffer(vertex_buffer const& _b);
 		~vertex_buffer();
 
@@ -56,11 +56,11 @@ namespace prototype
 		void bind(GLenum _as) const;
 		void unbind(GLenum _as) const;
 		
-		void set_data(GLenum _usage, size_t _sz, void *_data) const;
+		void set_data(GLenum _usage, size_t _sz, const void *_data) const;
 		NETLIB_INLINE void set_data(GLenum _usage, size_t _sz) const { set_data(_usage, _sz, NULL); }
 
-		void update_data(size_t _start, size_t _cnt, void *_buffer) const;
-		NETLIB_INLINE void update_data(size_t _sz, void *_buffer) const { update_data(0, _sz, _buffer); }
+		void update_data(size_t _start, size_t _cnt, const void *_buffer) const;
+		NETLIB_INLINE void update_data(size_t _sz, const void *_buffer) const { update_data(0, _sz, _buffer); }
 		
 		void draw(GLenum _type, size_t _start, size_t _count) const;
 		PROTOTYPE_INLINE void draw(GLenum _type, size_t _count) const { draw(_type, 0, _count); }

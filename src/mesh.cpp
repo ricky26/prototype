@@ -142,7 +142,7 @@ namespace prototype
 			set_data(_usage, _sz);
 	}
 	
-	vertex_buffer::vertex_buffer(GLenum _usage, size_t _sz, void *_buffer)
+	vertex_buffer::vertex_buffer(GLenum _usage, size_t _sz, const void *_buffer)
 	{
 		internal::create<vertex_buffer_internal>(mInternal);
 		if(create())
@@ -195,14 +195,14 @@ namespace prototype
 		glBindBuffer(_as, 0);
 	}
 		
-	void vertex_buffer::set_data(GLenum _usage, size_t _sz, void *_data) const
+	void vertex_buffer::set_data(GLenum _usage, size_t _sz, const void *_data) const
 	{
 		bind(GL_ARRAY_BUFFER);
 		glBufferData(GL_ARRAY_BUFFER, _sz, _data, _usage);
 		unbind(GL_ARRAY_BUFFER);
 	}
 
-	void vertex_buffer::update_data(size_t _start, size_t _cnt, void *_buffer) const
+	void vertex_buffer::update_data(size_t _start, size_t _cnt, const void *_buffer) const
 	{
 		bind(GL_ARRAY_BUFFER);
 		glBufferSubData(GL_ARRAY_BUFFER, _start, _cnt, _buffer);
