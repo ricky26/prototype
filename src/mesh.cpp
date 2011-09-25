@@ -385,6 +385,11 @@ namespace prototype
 	{
 		return mVertexArray.create();
 	}
+	
+	void mesh::set_indices(size_t _cnt)
+	{
+		mIndexCount = _cnt;
+	}
 
 	void mesh::set_indices(prototype::vertex_buffer const& _buff, vertex_element const& _el, size_t _cnt)
 	{
@@ -455,6 +460,9 @@ namespace prototype
 
 	void mesh::draw(size_t _off, size_t _cnt)
 	{
+		if(!mIndexCount)
+			return;
+
 		if(mIndexBuffer.valid())
 			mVertexArray.draw(mVertexType, _off, _cnt);
 		else

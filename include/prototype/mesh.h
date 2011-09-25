@@ -129,6 +129,7 @@ namespace prototype
 		PROTOTYPE_INLINE prototype::vertex_buffer const& index_buffer() const { return mIndexBuffer; }
 		PROTOTYPE_INLINE vertex_element const& index_element() const { return mIndexElement; }
 		PROTOTYPE_INLINE size_t index_count() const { return mIndexCount; }
+		void set_indices(size_t _cnt);
 		void set_indices(prototype::vertex_buffer const& _buff, vertex_element const& _el, size_t _cnt);
 
 		PROTOTYPE_INLINE elem_map_t const& elements() const { return mVertexElements; }
