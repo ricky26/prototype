@@ -137,8 +137,8 @@ namespace prototype
 		void remove_element(GLuint _attr);
 		void clear_elements();
 
-		void draw();
-		void draw(size_t _off, size_t _cnt);
+		void draw() const;
+		void draw(size_t _off, size_t _cnt) const;
 
 	private:
 		GLenum mVertexType;

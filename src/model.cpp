@@ -46,9 +46,9 @@ namespace prototype
 		_part->update_transform();
 	}
 
-	void model::draw_children()
+	void model::draw_children(matrix4f const& _v)
 	{
 		std::for_each(mChildren.begin(), mChildren.end(),
-			[](handle_t const& _p) { _p->draw(); });
+			[_v](handle_t const& _p) { _p->draw(_v); });
 	}
 }

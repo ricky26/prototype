@@ -14,7 +14,7 @@ namespace prototype
 	public:
 		typedef netlib::handle<model> handle_t;
 		typedef std::vector<handle_t> list_t;
-		typedef std::function<void(handle_t const& _ptr)> fn_t;
+		typedef std::function<void(handle_t const& _ptr, matrix4f const& _view)> fn_t;
 
 		model(fn_t const& _fn=&model::default_draw);
 
@@ -25,17 +25,17 @@ namespace prototype
 
 		void set_transform(matrix4f const& _mat);
 
-		PROTOTYPE_INLINE void draw() const { mFn(this); }
+		PROTOTYPE_INLINE void draw(matrix4f const& _v) const { mFn(this, _v); }
 
 		void add_part(handle_t const& _part);
 		void remove_part(handle_t const& _part);
 
-		void draw_children();
+		void draw_children(matrix4f const& _v);
 
 	protected:
 		void update_transform();
 
-		static PROTOTYPE_INLINE void default_draw(handle_t const& _h) { _h->draw_children(); }
+		static PROTOTYPE_INLINE void default_draw(handle_t const& _h, matrix4f const& _v) { _h->draw_children(_v); }
 
 	private:
 		handle_t mParent;

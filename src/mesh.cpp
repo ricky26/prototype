@@ -450,7 +450,7 @@ namespace prototype
 		mVertexElements.clear();
 	}
 
-	void mesh::draw()
+	void mesh::draw() const
 	{
 		if(mIndexBuffer.valid())
 			mVertexArray.draw(mVertexType, mIndexElement, mIndexCount);
@@ -458,7 +458,7 @@ namespace prototype
 			mVertexArray.draw(mVertexType, mIndexCount);
 	}
 
-	void mesh::draw(size_t _off, size_t _cnt)
+	void mesh::draw(size_t _off, size_t _cnt) const
 	{
 		if(!mIndexCount)
 			return;

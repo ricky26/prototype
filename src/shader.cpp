@@ -290,6 +290,12 @@ namespace prototype
 		return glGetError() != GL_NO_ERROR;
 	}
 	
+	GLuint shader_program::find_attribute(std::string const& _nm) const
+	{
+		shader_program_internal *si = shader_program_internal::get(mInternal);
+		return glGetAttribLocation(si->id, _nm.c_str());
+	}
+	
 	GLuint shader_program::find_uniform(std::string const& _nm) const
 	{
 		shader_program_internal *si = shader_program_internal::get(mInternal);

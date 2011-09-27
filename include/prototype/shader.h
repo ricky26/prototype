@@ -64,6 +64,7 @@ namespace prototype
 		std::string error() const;
 
 		bool bind_attribute(std::string const& _nm, GLuint _attr);
+		GLuint find_attribute(std::string const& _nm) const;
 		GLuint find_uniform(std::string const& _nm) const;
 		
 		shader_program &operator =(shader_program const& _b);
