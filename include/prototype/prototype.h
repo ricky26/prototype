@@ -18,7 +18,7 @@
 #		define PROTOTYPE_API 
 #	endif
 #	define PROTOTYPE_INLINE inline
-#	define PROTOTYPE_THRED __thread
+#	define PROTOTYPE_THREAD __thread
 #endif
 
 #include <stdint.h>

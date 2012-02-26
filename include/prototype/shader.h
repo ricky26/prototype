@@ -1,20 +1,21 @@
 #include "prototype.h"
 #include "gl.h"
+#include <netlib/ref_counted.h>
+#include <netlib/internal.h>
 #include <vector>
 #include <string>
+#include <functional>
 
 #pragma once
 
 namespace prototype
 {
-	class PROTOTYPE_API shader
+	class PROTOTYPE_API shader: public netlib::internalized
 	{
 	public:
 		shader();
 		shader(GLenum _type);
 		shader(GLenum _type, std::string const& _src);
-		shader(shader const& _b);
-		~shader();
 		
 		bool valid() const;
 		GLuint id() const;
@@ -28,23 +29,14 @@ namespace prototype
 		bool compiled() const;
 
 		std::string error();
-		
-		shader &operator =(shader const& _b);
-		PROTOTYPE_INLINE bool operator ==(shader const& _b) const { return mInternal == _b.mInternal; }
-		PROTOTYPE_INLINE bool operator !=(shader const& _b) const { return mInternal != _b.mInternal; }
-
-	private:
-		void *mInternal;
 	};
 
-	class PROTOTYPE_API shader_program
+	class PROTOTYPE_API shader_program: public netlib::internalized
 	{
 	public:
 		typedef std::vector<shader> list_t;
 
 		shader_program();
-		shader_program(shader_program const& _p);
-		~shader_program();
 
 		bool valid() const;
 		GLuint id() const;
@@ -66,12 +58,27 @@ namespace prototype
 		bool bind_attribute(std::string const& _nm, GLuint _attr);
 		GLuint find_attribute(std::string const& _nm) const;
 		GLuint find_uniform(std::string const& _nm) const;
-		
-		shader_program &operator =(shader_program const& _b);
-		PROTOTYPE_INLINE bool operator ==(shader_program const& _b) const { return mInternal == _b.mInternal; }
-		PROTOTYPE_INLINE bool operator !=(shader_program const& _b) const { return mInternal != _b.mInternal; }
+	};
+
+	class PROTOTYPE_API shader_instance: public ref_counted
+	{
+	public:
+		typedef handle<shader_instance> handle_t;
+		typedef std::function<void(handle_t const&)> fn_t;
+
+		PROTOTYPE_INLINE shader_instance() {}
+		shader_instance(shader_program const& _p);
+		shader_instance(shader_instance const& _sh);
+
+		PROTOTYPE_INLINE bool valid() const { return mProgram.valid(); }
+		PROTOTYPE_INLINE shader_program const& program() const { return mProgram; }
+
+		inline virtual void activate() const;
+		inline virtual void deactivate() const;
+
+		static handle_t from_function(shader_program const& _p, fn_t const& _begin, fn_t const& _end=fn_t());
 
 	private:
-		void *mInternal;
+		shader_program mProgram;
 	};
 }

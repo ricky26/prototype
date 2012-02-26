@@ -555,6 +555,8 @@ namespace prototype
 		wi->handle = win;
 		wi->width = 0;
 		wi->height = 0;
+
+		begin_frame(); // This initializes GLEW.
 		return true;
 	}
 

@@ -88,9 +88,16 @@ namespace prototype
 
 		static self_t identity()
 		{
-			self_t ret;
-			for(size_t r = 0; r < S; r++)
-				ret.get(r, r) = 1;
+			static self_t ret;
+			static bool done = false;
+
+			if(!done)
+			{
+				for(size_t r = 0; r < S; r++)
+					ret.get(r, r) = 1;
+
+				done = true;
+			}
 
 			return ret;
 		}
