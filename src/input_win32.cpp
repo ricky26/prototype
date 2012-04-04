@@ -29,7 +29,7 @@ namespace prototype
 
 		static const wchar_t *window_class_name;
 
-		inline input_win32(): input_driver("Windows"), mMouse(this), mWindow(NULL)
+		inline input_win32(): input_driver("Windows"), mMouse(this), mWindow(nullptr)
 		{
 		}
 
@@ -65,7 +65,7 @@ namespace prototype
 			if(RegisterRawInputDevices(devs, sizeof(devs)/sizeof(*devs), sizeof(*devs)) == FALSE)
 			{
 				DestroyWindow(mWindow);
-				mWindow = NULL;
+				mWindow = nullptr;
 
 				return false;
 			}
@@ -95,7 +95,7 @@ namespace prototype
 			{
 				UINT size;
 				GetRawInputData((HRAWINPUT)_lparam, RID_INPUT,
-					NULL, &size, sizeof(RAWINPUTHEADER));
+					nullptr, &size, sizeof(RAWINPUTHEADER));
 
 				RAWINPUT *ri = (RAWINPUT*)new uint8_t[size];
 				if(!ri)

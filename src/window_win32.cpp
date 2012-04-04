@@ -15,8 +15,8 @@ using namespace netlib;
 namespace prototype
 {
 	static const wchar_t window_class_name[] = L"PrototypeWindow";
-	static GLEWContext *glew_context = NULL;
-	static WGLEWContext *wglew_context = NULL;
+	static GLEWContext *glew_context = nullptr;
+	static WGLEWContext *wglew_context = nullptr;
 	static const LONG_PTR windowed_style = WS_OVERLAPPEDWINDOW;
 	static const LONG_PTR fullscreen_style = WS_POPUP;
 
@@ -200,9 +200,9 @@ namespace prototype
 
 		window_internal()
 		{
-			handle = NULL;
-			dc = NULL;
-			rc = NULL;
+			handle = nullptr;
+			dc = nullptr;
+			rc = nullptr;
 			cursor = LoadCursor(NULL, IDC_ARROW);
 			fullscreen = false;
 			active = true;
@@ -213,8 +213,8 @@ namespace prototype
 		{
 			if(glew_context == &context)
 			{
-				glew_context = NULL;
-				wglew_context = NULL;
+				glew_context = nullptr;
+				wglew_context = nullptr;
 			}
 
 			if(rc)
@@ -223,19 +223,19 @@ namespace prototype
 					wglMakeCurrent(dc, 0);
 
 				wglDeleteContext(rc);
-				rc = NULL;
+				rc = nullptr;
 			}
 
 			if(dc)
 			{
 				ReleaseDC(handle, dc);
-				dc = NULL;
+				dc = nullptr;
 			}
 
 			if(handle)
 			{
 				DestroyWindow(handle);
-				handle = NULL;
+				handle = nullptr;
 			}
 		}
 
@@ -269,8 +269,8 @@ namespace prototype
 
 		inline bool setup_rc()
 		{
-			static HGLRC last_rc = NULL;
-			static netlib::critical_section cs;
+			static HGLRC last_rc = nullptr;
+			static netlib::mutex cs;
 
 			if(rc)
 				return true;
@@ -293,7 +293,7 @@ namespace prototype
 
 			int attribs[] = {
 				WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-				WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+				WGL_CONTEXT_MINOR_VERSION_ARB, 2,
 				WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
 				0
 			};
@@ -443,7 +443,7 @@ namespace prototype
 				case WM_SYSKEYDOWN:
 				case WM_KEYDOWN:
 					{
-						int btn = _wparam;
+						WPARAM btn = _wparam;
 						//bool was_down = ((1 << 30) & _lparam) != 0;
 
 						if(btn == VK_SHIFT)
@@ -453,7 +453,7 @@ namespace prototype
 						else if(btn == VK_CONTROL)
 							wi->modifiers |= modifier_control;
 
-						btn = map_key(btn);
+						btn = map_key(btn & 0xFFFF);
 						if(btn && _lparam & (1 << 24))
 							btn++;
 
@@ -470,7 +470,7 @@ namespace prototype
 				case WM_SYSKEYUP:
 				case WM_KEYUP:
 					{
-						int btn = _wparam;
+						WPARAM btn = _wparam;
 
 						if(btn == VK_SHIFT)
 							wi->modifiers &=~ modifier_shift;
@@ -479,7 +479,7 @@ namespace prototype
 						else if(btn == VK_CONTROL)
 							wi->modifiers &=~ modifier_control;
 						
-						btn = map_key(btn);
+						btn = map_key(btn & 0xFFFF);
 						if(btn && _lparam & (1 << 24))
 							btn++;
 
@@ -489,7 +489,7 @@ namespace prototype
 					return 0;
 
 				case WM_CHAR:
-					win->key_typed(_wparam);
+					win->key_typed((wchar_t)_wparam);
 					return 0;
 
 				case WM_CLOSE:
@@ -517,6 +517,19 @@ namespace prototype
 		wi->acquire();
 		mInternal = wi;
 	}
+	
+	window::window(window const& _w)
+	{
+		window_internal *wi = window_internal::get(_w.mInternal);
+		wi->acquire();
+		mInternal = wi;
+	}
+
+	window::window(window &&_w)
+		: mInternal(_w.mInternal)
+	{
+		_w.mInternal = nullptr;
+	}
 
 	window::window(std::string const& _title)
 	{
@@ -530,14 +543,17 @@ namespace prototype
 	window::~window()
 	{
 		window_internal *wi = window_internal::get(mInternal);
-		wi->release();
-		mInternal = NULL;
+		if(wi)
+		{
+			wi->release();
+			mInternal = nullptr;
+		}
 	}
 
 	bool window::valid() const
 	{
 		window_internal *wi = window_internal::get(mInternal);
-		return wi->handle != NULL;
+		return wi->handle != nullptr;
 	}
 
 	bool window::create(std::string const& _title)
@@ -550,7 +566,7 @@ namespace prototype
 		if(!win)
 			return false;
 
-		SetWindowLongPtr(win, GWLP_USERDATA, (LONG)this);
+		SetWindowLongPtr(win, GWLP_USERDATA, (LONG_PTR)this);
 		SetWindowPos(win, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		wi->handle = win;
 		wi->width = 0;
@@ -568,7 +584,7 @@ namespace prototype
 		int len = GetWindowTextLengthW(wi->handle);
 		wstr.resize(len);
 
-		len = GetWindowTextW(wi->handle, (LPWSTR)wstr.data(), wstr.size());
+		len = GetWindowTextW(wi->handle, (LPWSTR)wstr.data(), (int)wstr.size());
 		wstr.resize(len);
 
 		return i18n::convert<i18n::utf8, i18n::utf16>(wstr);
@@ -630,13 +646,13 @@ namespace prototype
 	bool window::cursor_visible() const
 	{
 		window_internal *wi = window_internal::get(mInternal);
-		return wi->cursor != NULL;
+		return wi->cursor != nullptr;
 	}
 
 	void window::set_cursor_visible(bool _v)
 	{
 		window_internal *wi = window_internal::get(mInternal);
-		wi->cursor = _v ? LoadCursor(NULL, IDC_ARROW) : NULL;
+		wi->cursor = _v ? LoadCursor(NULL, IDC_ARROW) : nullptr;
 		SetCursor(wi->cursor);
 	}
 	
@@ -745,7 +761,7 @@ namespace prototype
 		}
 
 		DestroyWindow(wi->handle);
-		wi->handle = NULL;
+		wi->handle = nullptr;
 	}
 
 	bool window::begin_frame()

@@ -116,7 +116,7 @@ namespace prototype
 
 		void shutdown() override
 		{
-			thread = NULL;
+			thread = nullptr;
 			input_driver::shutdown();
 		}
 
@@ -151,7 +151,7 @@ namespace prototype
 				else if(!conn && dev)
 				{
 					// disconnected
-					devices[i] = NULL;
+					devices[i] = nullptr;
 					remove_device(dev);
 					dev->release();
 				}

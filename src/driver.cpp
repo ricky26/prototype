@@ -7,7 +7,7 @@ using namespace netlib;
 namespace prototype
 {
 	driver::drivers_t driver::gDrivers;
-	static critical_section gDriversCS;
+	static mutex gDriversCS;
 
 	driver::driver(std::string const& _nm)
 		: mName(_nm)

@@ -81,7 +81,7 @@ namespace prototype
 
 		std::string ret;
 		ret.resize(len);
-		glGetShaderSource(si->id, len, NULL, (GLchar*)ret.data());
+		glGetShaderSource(si->id, len, nullptr, (GLchar*)ret.data());
 
 		return ret;
 	}
@@ -90,7 +90,7 @@ namespace prototype
 	{
 		shader_internal *si = get<shader_internal>();
 
-		GLint len = _str.size();
+		GLint len = (GLint)_str.size();
 		GLchar *str = (GLchar*)_str.data();
 		glShaderSource(si->id, 1, (const GLchar**)&str, &len);
 	}
@@ -121,7 +121,7 @@ namespace prototype
 
 		std::string ret;
 		ret.resize(len);
-		glGetShaderInfoLog(si->id, len, NULL, (GLchar*)ret.data());
+		glGetShaderInfoLog(si->id, len, nullptr, (GLchar*)ret.data());
 		return ret;
 	}
 
@@ -155,7 +155,7 @@ namespace prototype
 	//
 
 	shader_program::shader_program()
-		: internalized(internalized::create<shader_program>())
+		: internalized(internalized::create<shader_program_internal>())
 	{
 	}
 
@@ -251,7 +251,7 @@ namespace prototype
 
 		std::string ret;
 		ret.resize(len);
-		glGetProgramInfoLog(si->id, len, NULL, (GLchar*)ret.data());
+		glGetProgramInfoLog(si->id, len, nullptr, (GLchar*)ret.data());
 		return ret;
 	}
 	

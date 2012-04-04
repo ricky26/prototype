@@ -19,7 +19,7 @@ namespace prototype
 	{
 	public:
 		vertex_element();
-		vertex_element(GLenum _type, size_t _stride, size_t _offset, size_t _count=1, bool _norm=false);
+		vertex_element(GLenum _type, GLsizei _stride, GLsizei _offset, GLsizei _count=1, bool _norm=false);
 
 		PROTOTYPE_INLINE GLenum type() const { return mType; }
 		PROTOTYPE_INLINE size_t size() const { return opengl_type_size(mType); }
@@ -33,9 +33,9 @@ namespace prototype
 
 	private:
 		GLenum mType;
-		size_t mStride;
-		size_t mOffset;
-		size_t mCount;
+		GLsizei mStride;
+		GLsizei mOffset;
+		GLsizei mCount;
 		bool mNorm;
 	};
 
@@ -57,17 +57,17 @@ namespace prototype
 		void unbind(GLenum _as) const;
 		
 		void set_data(GLenum _usage, size_t _sz, const void *_data) const;
-		NETLIB_INLINE void set_data(GLenum _usage, size_t _sz) const { set_data(_usage, _sz, NULL); }
+		NETLIB_INLINE void set_data(GLenum _usage, size_t _sz) const { set_data(_usage, _sz, nullptr); }
 
 		void update_data(size_t _start, size_t _cnt, const void *_buffer) const;
 		NETLIB_INLINE void update_data(size_t _sz, const void *_buffer) const { update_data(0, _sz, _buffer); }
 		
-		void draw(GLenum _type, size_t _start, size_t _count) const;
-		PROTOTYPE_INLINE void draw(GLenum _type, size_t _count) const { draw(_type, 0, _count); }
-		void draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, size_t _start, size_t _cnt) const;
-		PROTOTYPE_INLINE void draw(GLenum _type, vertex_element const& _iel, size_t _start, size_t _cnt) const { draw(_type, *this, _iel, _start, _cnt); }
-		void draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, size_t _count) const;
-		PROTOTYPE_INLINE void draw(GLenum _type, vertex_element const& _iel, size_t _count) const { draw(_type, *this, _iel, _count); }
+		void draw(GLenum _type, GLint _start, GLsizei _count) const;
+		PROTOTYPE_INLINE void draw(GLenum _type, GLsizei _count) const { draw(_type, 0, _count); }
+		void draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, GLint _start, GLsizei _cnt) const;
+		PROTOTYPE_INLINE void draw(GLenum _type, vertex_element const& _iel, GLint _start, GLsizei _cnt) const { draw(_type, *this, _iel, _start, _cnt); }
+		void draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, GLsizei _count) const;
+		PROTOTYPE_INLINE void draw(GLenum _type, vertex_element const& _iel, GLsizei _count) const { draw(_type, *this, _iel, _count); }
 		
 		vertex_buffer &operator =(vertex_buffer const& _b);
 		PROTOTYPE_INLINE bool operator ==(vertex_buffer const& _b) const { return mInternal == _b.mInternal; }
@@ -92,10 +92,10 @@ namespace prototype
 		void bind() const;
 		void unbind() const;
 		
-		void draw(GLenum _type, size_t _start, size_t _count) const;
-		PROTOTYPE_INLINE void draw(GLenum _type, size_t _count) const { draw(_type, 0, _count); }
-		void draw(GLenum _type, vertex_element const& _iel, size_t _start, size_t _cnt) const;
-		void draw(GLenum _type, vertex_element const& _iel, size_t _count) const;
+		void draw(GLenum _type, GLint _start, GLsizei _count) const;
+		PROTOTYPE_INLINE void draw(GLenum _type, GLsizei _count) const { draw(_type, 0, _count); }
+		void draw(GLenum _type, vertex_element const& _iel, GLint _start, GLsizei _cnt) const;
+		void draw(GLenum _type, vertex_element const& _iel, GLsizei _count) const;
 		
 		vertex_array &operator =(vertex_array const& _b);
 		PROTOTYPE_INLINE bool operator ==(vertex_array const& _b) const { return mInternal == _b.mInternal; }
@@ -129,8 +129,8 @@ namespace prototype
 		PROTOTYPE_INLINE prototype::vertex_buffer const& index_buffer() const { return mIndexBuffer; }
 		PROTOTYPE_INLINE vertex_element const& index_element() const { return mIndexElement; }
 		PROTOTYPE_INLINE size_t index_count() const { return mIndexCount; }
-		void set_indices(size_t _cnt);
-		void set_indices(prototype::vertex_buffer const& _buff, vertex_element const& _el, size_t _cnt);
+		void set_indices(GLsizei _cnt);
+		void set_indices(prototype::vertex_buffer const& _buff, vertex_element const& _el, GLsizei _cnt);
 
 		PROTOTYPE_INLINE elem_map_t const& elements() const { return mVertexElements; }
 		bool add_element(GLuint _attr, vertex_buffer const& _buff, vertex_element const& _el);
@@ -138,13 +138,13 @@ namespace prototype
 		void clear_elements();
 
 		void draw() const;
-		void draw(size_t _off, size_t _cnt) const;
+		void draw(GLint _off, GLsizei _cnt) const;
 
 	private:
 		GLenum mVertexType;
 		prototype::vertex_buffer mIndexBuffer;
 		vertex_element mIndexElement;
-		size_t mIndexCount;
+		GLsizei mIndexCount;
 		elem_map_t mVertexElements;
 		prototype::vertex_array mVertexArray;
 	};

@@ -80,7 +80,7 @@ namespace prototype
 	// vertex_element
 	//
 	
-	vertex_element::vertex_element(GLenum _type, size_t _stride, size_t _offset, size_t _count, bool _norm)
+	vertex_element::vertex_element(GLenum _type, GLsizei _stride, GLsizei _offset, GLsizei _count, bool _norm)
 		: mType(_type), mStride(_stride), mOffset(_offset), mCount(_count), mNorm(_norm)
 	{
 	}
@@ -92,7 +92,8 @@ namespace prototype
 
 	void vertex_element::bind(GLuint _idx) const
 	{
-		glVertexAttribPointer(_idx, mCount, mType, mNorm ? GL_TRUE : GL_FALSE, mStride, (const GLvoid*)mOffset);
+		glVertexAttribPointer(_idx, (GLint)mCount, mType,
+			mNorm ? GL_TRUE : GL_FALSE, (GLsizei)mStride, (const GLvoid*)mOffset);
 		glEnableVertexAttribArray(_idx);
 	}
 
@@ -209,14 +210,14 @@ namespace prototype
 		unbind(GL_ARRAY_BUFFER);
 	}
 
-	void vertex_buffer::draw(GLenum _type, size_t _start, size_t _count) const
+	void vertex_buffer::draw(GLenum _type, GLint _start, GLsizei _count) const
 	{
 		bind(GL_ARRAY_BUFFER);
 		glDrawArrays(_type, _start, _count);
 		unbind(GL_ARRAY_BUFFER);
 	}
 
-	void vertex_buffer::draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, size_t _count) const
+	void vertex_buffer::draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, GLsizei _count) const
 	{
 		bind(GL_ARRAY_BUFFER);
 		_idx.bind(GL_ELEMENT_ARRAY_BUFFER);
@@ -225,7 +226,7 @@ namespace prototype
 		unbind(GL_ARRAY_BUFFER);
 	}
 
-	void vertex_buffer::draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, size_t _start, size_t _cnt) const
+	void vertex_buffer::draw(GLenum _type, vertex_buffer const& _idx, vertex_element const& _iel, GLint _start, GLsizei _cnt) const
 	{
 		bind(GL_ARRAY_BUFFER);
 		_idx.bind(GL_ELEMENT_ARRAY_BUFFER);
@@ -326,21 +327,21 @@ namespace prototype
 		glBindVertexArray(0);
 	}
 
-	void vertex_array::draw(GLenum _type, size_t _start, size_t _count) const
+	void vertex_array::draw(GLenum _type, GLint _start, GLsizei _count) const
 	{
 		bind();
 		glDrawArrays(_type, _start, _count);
 		unbind();
 	}
 
-	void vertex_array::draw(GLenum _type, vertex_element const& _iel, size_t _count) const
+	void vertex_array::draw(GLenum _type, vertex_element const& _iel, GLsizei _count) const
 	{
 		bind();
 		glDrawElements(_type, _count, _iel.type(), (const GLvoid*)_iel.offset());
 		unbind();
 	}
 
-	void vertex_array::draw(GLenum _type, vertex_element const& _iel, size_t _start, size_t _cnt) const
+	void vertex_array::draw(GLenum _type, vertex_element const& _iel, GLint _start, GLsizei _cnt) const
 	{
 		bind();
 		glDrawRangeElements(_type, _start, _start+_cnt, _cnt, _iel.type(), (const GLvoid*)_iel.offset());
@@ -386,12 +387,12 @@ namespace prototype
 		return mVertexArray.create();
 	}
 	
-	void mesh::set_indices(size_t _cnt)
+	void mesh::set_indices(GLsizei _cnt)
 	{
 		mIndexCount = _cnt;
 	}
 
-	void mesh::set_indices(prototype::vertex_buffer const& _buff, vertex_element const& _el, size_t _cnt)
+	void mesh::set_indices(prototype::vertex_buffer const& _buff, vertex_element const& _el, GLsizei _cnt)
 	{
 		if(!mVertexArray.valid())
 			create();
@@ -458,7 +459,7 @@ namespace prototype
 			mVertexArray.draw(mVertexType, mIndexCount);
 	}
 
-	void mesh::draw(size_t _off, size_t _cnt) const
+	void mesh::draw(GLint _off, GLsizei _cnt) const
 	{
 		if(!mIndexCount)
 			return;

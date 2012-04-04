@@ -120,7 +120,7 @@ namespace prototype
 		if(it == mBindings.end())
 			return;
 
-		_binding->mControl = NULL;
+		_binding->mControl = nullptr;
 		mBindings.erase(it);
 	}
 
@@ -248,7 +248,7 @@ namespace prototype
 		if(it == mBindings.end())
 			return;
 
-		_binding->mControl = NULL;
+		_binding->mControl = nullptr;
 		mBindings.erase(it);
 	}
 
@@ -343,7 +343,7 @@ namespace prototype
 		if(it == mBindings.end())
 			return;
 
-		_binding->mControl = NULL;
+		_binding->mControl = nullptr;
 		mBindings.erase(it);
 	}
 

@@ -80,6 +80,8 @@ namespace prototype
 		friend struct window_internal;
 
 		window();
+		window(window const&);
+		window(window&&);
 		window(std::string const& _title);
 		virtual ~window();
 

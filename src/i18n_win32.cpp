@@ -10,10 +10,29 @@ namespace prototype
 			std::wstring ret;
 			ret.resize(_text.size());
 
-			if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-				_text.data(), _text.size(), (wchar_t*)ret.data(), ret.size()) == 0)
+			int rval = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+				_text.data(), _text.size(), (wchar_t*)ret.data(), ret.capacity());
+
+			if(rval == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			{
+				rval = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+					_text.data(), _text.size(), nullptr, 0);
+				if(rval)
+				{
+					ret.resize(rval+1);
+					rval = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+						_text.data(), _text.size(),
+						(wchar_t*)ret.data(), ret.capacity());
+				}
+			}
+
+			if(rval == 0)
+			{
+				int err = GetLastError();
 				return L""; // TODO: check actual string size?
+			}
 			
+			ret.resize(rval);
 			return ret;
 		}
 
@@ -21,12 +40,33 @@ namespace prototype
 		{
 			std::string ret;
 			ret.resize(_text.size()*2);
-			
-			if(WideCharToMultiByte(CP_UTF8, MB_ERR_INVALID_CHARS,
-				_text.data(), _text.size(), (char*)ret.data(), ret.size(),
-				NULL, FALSE) == 0)
-				return ""; // TODO: check actual string size?
 
+			int rval = WideCharToMultiByte(CP_UTF8, 0,
+				_text.data(), _text.size(), (char*)ret.data(), ret.capacity(),
+				nullptr, FALSE);
+
+			if(rval == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			{
+				rval = WideCharToMultiByte(CP_UTF8, 0,
+					_text.data(), _text.size(), NULL, 0,
+					nullptr, FALSE);
+				if(rval)
+				{
+					ret.resize(rval+1);
+					rval = WideCharToMultiByte(CP_UTF8, 0,
+						_text.data(), _text.size(),
+						(char*)ret.data(), ret.capacity(),
+						nullptr, FALSE);
+				}
+			}
+
+			if(rval == 0)
+			{
+				int err = GetLastError();
+				return ""; // TODO: check actual string size?
+			}
+			
+			ret.resize(rval);
 			return ret;
 		}
 	}

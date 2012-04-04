@@ -45,7 +45,7 @@ namespace prototype
 		if(_part->mParent != this)
 			return;
 
-		_part->mParent = NULL;
+		_part->mParent = nullptr;
 		_part->update_transform();
 	}
 
@@ -72,7 +72,7 @@ namespace prototype
 			matrix4f world_proj_mat;
 		};
 
-		PROTOTYPE_THREAD render_state_t *render_state = NULL;
+		PROTOTYPE_THREAD render_state_t *render_state = nullptr;
 
 		static inline render_state_t *get_state()
 		{
