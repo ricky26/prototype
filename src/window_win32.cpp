@@ -1,7 +1,7 @@
 #include <prototype/window.h>
-#include <prototype/i18n.h>
 #include <prototype/gl.h>
 #include <prototype/key.h>
+#include <netlib/i18n.h>
 #include <netlib/ref_counted.h>
 #include <netlib/thread.h>
 #include <Windows.h>

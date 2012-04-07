@@ -27,9 +27,6 @@
     <ClInclude Include="include\prototype\window.h">
       <Filter>Header Files\prototype</Filter>
     </ClInclude>
-    <ClInclude Include="include\prototype\i18n.h">
-      <Filter>Header Files\prototype</Filter>
-    </ClInclude>
     <ClInclude Include="include\prototype\gl.h">
       <Filter>Header Files\prototype</Filter>
     </ClInclude>
@@ -111,9 +108,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\i18n_win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\texture.cpp">

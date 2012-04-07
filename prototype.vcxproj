@@ -188,7 +188,6 @@
     <ClInclude Include="include\prototype\driver_internal.h" />
     <ClInclude Include="include\prototype\font.h" />
     <ClInclude Include="include\prototype\gl.h" />
-    <ClInclude Include="include\prototype\i18n.h" />
     <ClInclude Include="include\prototype\input.h" />
     <ClInclude Include="include\prototype\key.h" />
     <ClInclude Include="include\prototype\matrix.h" />
@@ -207,7 +206,6 @@
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\binding.cpp" />
     <ClCompile Include="src\driver.cpp" />
-    <ClCompile Include="src\i18n_win32.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\input_xinput.cpp" />
     <ClCompile Include="src\model.cpp" />
