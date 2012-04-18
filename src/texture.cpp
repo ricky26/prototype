@@ -63,6 +63,9 @@ namespace prototype
 		GLenum _format, GLenum _iformat, GLint _level, GLint _border)
 	{
 		texture_internal *i = get<texture_internal>();
+		if(!i->id)
+			if(!create())
+				return;
 
 		glBindTexture(_bind, i->id);
 		glTexImage2D(_target, _level, _iformat, _w, _h, _border, _format, _type, _data);

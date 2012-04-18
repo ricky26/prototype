@@ -4,10 +4,14 @@
 
 #pragma once
 
+#ifdef PROTOTYPE_STATIC
+#	define PROTOTYPE_API
+#else
 #ifdef PROTOTYPE_EXPORTS
 #	define PROTOTYPE_API NETLIB_API_EXPORT
 #else
 #	define PROTOTYPE_API NETLIB_API_IMPORT
+#endif
 #endif
 
 #define PROTOTYPE_THREAD	NETLIB_THREAD

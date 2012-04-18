@@ -69,6 +69,9 @@
     <ClInclude Include="include\prototype\texture.h">
       <Filter>Header Files\prototype</Filter>
     </ClInclude>
+    <ClInclude Include="include\prototype\image.h">
+      <Filter>Header Files\prototype</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\window_win32.cpp">
@@ -111,6 +114,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\image_png.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
