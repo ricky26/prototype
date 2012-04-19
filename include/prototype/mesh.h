@@ -56,11 +56,11 @@ namespace prototype
 		void bind(GLenum _as) const;
 		void unbind(GLenum _as) const;
 		
-		void set_data(GLenum _usage, size_t _sz, const void *_data) const;
-		NETLIB_INLINE void set_data(GLenum _usage, size_t _sz) const { set_data(_usage, _sz, nullptr); }
+		void set_data(GLenum _usage, size_t _sz, const void *_data);
+		NETLIB_INLINE void set_data(GLenum _usage, size_t _sz) { set_data(_usage, _sz, nullptr); }
 
-		void update_data(size_t _start, size_t _cnt, const void *_buffer) const;
-		NETLIB_INLINE void update_data(size_t _sz, const void *_buffer) const { update_data(0, _sz, _buffer); }
+		void update_data(size_t _start, size_t _cnt, const void *_buffer);
+		NETLIB_INLINE void update_data(size_t _sz, const void *_buffer) { update_data(0, _sz, _buffer); }
 		
 		void draw(GLenum _type, GLint _start, GLsizei _count) const;
 		PROTOTYPE_INLINE void draw(GLenum _type, GLsizei _count) const { draw(_type, 0, _count); }

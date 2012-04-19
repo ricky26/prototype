@@ -14,6 +14,8 @@ namespace prototype
 		bool valid() const;
 		bool create();
 
+		GLuint id() const;
+
 		void activate(GLint _idx=0) const;
 		void deactivate(GLint _idx=0) const;
 

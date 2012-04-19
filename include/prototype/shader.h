@@ -10,17 +10,21 @@
 
 namespace prototype
 {
+	class texture;
 	class PROTOTYPE_API shader: public netlib::internalized
 	{
 	public:
+		using internalized::internalized;
+
 		shader();
 		shader(GLenum _type);
 		shader(GLenum _type, std::string const& _src);
 		
 		bool valid() const;
 		GLuint id() const;
-
+		
 		bool create(GLenum _type);
+		bool create(GLenum _type, std::string const& _src);
 
 		std::string source() const;
 		void set_source(std::string const& _str);
@@ -34,6 +38,8 @@ namespace prototype
 	class PROTOTYPE_API shader_program: public netlib::internalized
 	{
 	public:
+		using internalized::internalized;
+
 		typedef std::vector<shader> list_t;
 
 		shader_program();

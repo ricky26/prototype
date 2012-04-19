@@ -44,6 +44,12 @@ namespace prototype
 		return true;
 	}
 
+	GLuint texture::id() const
+	{
+		texture_internal *i = get<texture_internal>();
+		return i->id;
+	}
+
 	void texture::activate(GLint _idx) const
 	{
 		texture_internal *i = get<texture_internal>();

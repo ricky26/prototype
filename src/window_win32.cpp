@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <Windowsx.h>
 #include <GL/wglew.h>
+#include <iostream>
 
 using namespace netlib;
 
@@ -330,172 +331,183 @@ namespace prototype
 		static LRESULT CALLBACK window_proc(HWND _win,
 			UINT _msg, WPARAM _wparam, LPARAM _lparam)
 		{
-			window *win = (window*)GetWindowLongPtr(_win, GWLP_USERDATA);
-			if(win)
+			try
 			{
-				window_internal *wi = get(win->mInternal);
-
-				switch(_msg)
+				window *win = (window*)GetWindowLongPtr(_win, GWLP_USERDATA);
+				if(win)
 				{
-				case WM_ACTIVATE:
-					wi->active = LOWORD(_wparam) != 0;
-					break;
+					window_internal *wi = get(win->mInternal);
 
-				case WM_PAINT:
+					switch(_msg)
 					{
-						ValidateRect(_win, NULL);
-						win->paint();
-					}
-					return 0;
+					case WM_ACTIVATE:
+						wi->active = LOWORD(_wparam) != 0;
+						break;
 
-				case WM_SETCURSOR:
-					win->show_cursor();
-					break;
-
-				case WM_KILLFOCUS:
-					wi->modifiers = 0;
-					if(wi->fullscreen)
-					{
-						ChangeDisplaySettingsW(NULL, 0);
-						ShowWindow(wi->handle, SW_MINIMIZE);
-					}
-					break;
-
-				case WM_SETFOCUS:
-					if(wi->fullscreen)
-						ChangeDisplaySettingsW(&wi->mode, CDS_FULLSCREEN);
-					break;
-
-				case WM_SIZE:
-					{
-						RECT rect;
-						GetClientRect(wi->handle, &rect);
-						wi->width = rect.right - rect.left;
-						wi->height = rect.bottom - rect.top;
-
-						RedrawWindow(wi->handle, NULL, NULL, RDW_INTERNALPAINT);
-						window_event evt(win);
-						win->on_resized()(evt);
-					}
-					return 0;
-
-				case WM_MOUSEMOVE:
-					win->mouse_move(GET_X_LPARAM(_lparam), GET_Y_LPARAM(_lparam));
-					return 0;
-
-				case WM_LBUTTONDOWN:
-					win->mouse_down(key_lbutton);
-					return 0;
-
-				case WM_LBUTTONUP:
-					win->mouse_up(key_lbutton);
-					return 0;
-
-				case WM_LBUTTONDBLCLK:
-					win->mouse_double_click(key_lbutton);
-					return 0;
-
-				case WM_RBUTTONDOWN:
-					win->mouse_down(key_rbutton);
-					return 0;
-
-				case WM_RBUTTONUP:
-					win->mouse_up(key_rbutton);
-					return 0;
-
-				case WM_RBUTTONDBLCLK:
-					win->mouse_double_click(key_rbutton);
-					return 0;
-
-				case WM_MBUTTONDOWN:
-					win->mouse_down(key_mbutton);
-					return 0;
-
-				case WM_MBUTTONUP:
-					win->mouse_up(key_mbutton);
-					return 0;
-
-				case WM_MBUTTONDBLCLK:
-					win->mouse_double_click(key_mbutton);
-					return 0;
-
-				case WM_XBUTTONDOWN:
-					{
-						key btn = (key)(key_xbutton+GET_XBUTTON_WPARAM(_wparam)-1);
-						win->mouse_down(btn);
-					}
-					return 0;
-
-				case WM_XBUTTONUP:
-					{
-						key btn = (key)(key_xbutton+GET_XBUTTON_WPARAM(_wparam)-1);
-						win->mouse_up(btn);
-					}
-					return 0;
-
-				case WM_XBUTTONDBLCLK:
-					{
-						key btn = (key)(key_xbutton+GET_XBUTTON_WPARAM(_wparam)-1);
-						win->mouse_double_click(btn);
-					}
-					return 0;
-
-				case WM_SYSKEYDOWN:
-				case WM_KEYDOWN:
-					{
-						WPARAM btn = _wparam;
-						//bool was_down = ((1 << 30) & _lparam) != 0;
-
-						if(btn == VK_SHIFT)
-							wi->modifiers |= modifier_shift;
-						else if(btn == VK_MENU)
-							wi->modifiers |= modifier_alt;
-						else if(btn == VK_CONTROL)
-							wi->modifiers |= modifier_control;
-
-						btn = map_key(btn & 0xFFFF);
-						if(btn && _lparam & (1 << 24))
-							btn++;
-
-						if(btn)
+					case WM_PAINT:
 						{
-							//if(!was_down)
-								win->key_down((key)btn);
-
-							win->key_pressed((key)btn);
+							ValidateRect(_win, NULL);
+							win->paint();
 						}
-					}
-					return 0;
+						return 0;
+
+					case WM_SETCURSOR:
+						win->show_cursor();
+						break;
+
+					case WM_KILLFOCUS:
+						wi->modifiers = 0;
+						if(wi->fullscreen)
+						{
+							ChangeDisplaySettingsW(NULL, 0);
+							ShowWindow(wi->handle, SW_MINIMIZE);
+						}
+						break;
+
+					case WM_SETFOCUS:
+						if(wi->fullscreen)
+							ChangeDisplaySettingsW(&wi->mode, CDS_FULLSCREEN);
+						break;
+
+					case WM_SIZE:
+						{
+							RECT rect;
+							GetClientRect(wi->handle, &rect);
+							wi->width = rect.right - rect.left;
+							wi->height = rect.bottom - rect.top;
+
+							RedrawWindow(wi->handle, NULL, NULL, RDW_INTERNALPAINT);
+							window_event evt(win);
+							win->on_resized()(evt);
+						}
+						return 0;
+
+					case WM_MOUSEMOVE:
+						win->mouse_move(GET_X_LPARAM(_lparam), GET_Y_LPARAM(_lparam));
+						return 0;
+
+					case WM_LBUTTONDOWN:
+						win->mouse_down(key_lbutton);
+						return 0;
+
+					case WM_LBUTTONUP:
+						win->mouse_up(key_lbutton);
+						return 0;
+
+					case WM_LBUTTONDBLCLK:
+						win->mouse_double_click(key_lbutton);
+						return 0;
+
+					case WM_RBUTTONDOWN:
+						win->mouse_down(key_rbutton);
+						return 0;
+
+					case WM_RBUTTONUP:
+						win->mouse_up(key_rbutton);
+						return 0;
+
+					case WM_RBUTTONDBLCLK:
+						win->mouse_double_click(key_rbutton);
+						return 0;
+
+					case WM_MBUTTONDOWN:
+						win->mouse_down(key_mbutton);
+						return 0;
+
+					case WM_MBUTTONUP:
+						win->mouse_up(key_mbutton);
+						return 0;
+
+					case WM_MBUTTONDBLCLK:
+						win->mouse_double_click(key_mbutton);
+						return 0;
+
+					case WM_XBUTTONDOWN:
+						{
+							key btn = (key)(key_xbutton+GET_XBUTTON_WPARAM(_wparam)-1);
+							win->mouse_down(btn);
+						}
+						return 0;
+
+					case WM_XBUTTONUP:
+						{
+							key btn = (key)(key_xbutton+GET_XBUTTON_WPARAM(_wparam)-1);
+							win->mouse_up(btn);
+						}
+						return 0;
+
+					case WM_XBUTTONDBLCLK:
+						{
+							key btn = (key)(key_xbutton+GET_XBUTTON_WPARAM(_wparam)-1);
+							win->mouse_double_click(btn);
+						}
+						return 0;
+
+					case WM_SYSKEYDOWN:
+					case WM_KEYDOWN:
+						{
+							WPARAM btn = _wparam;
+							//bool was_down = ((1 << 30) & _lparam) != 0;
+
+							if(btn == VK_SHIFT)
+								wi->modifiers |= modifier_shift;
+							else if(btn == VK_MENU)
+								wi->modifiers |= modifier_alt;
+							else if(btn == VK_CONTROL)
+								wi->modifiers |= modifier_control;
+
+							btn = map_key(btn & 0xFFFF);
+							if(btn && _lparam & (1 << 24))
+								btn++;
+
+							if(btn)
+							{
+								//if(!was_down)
+									win->key_down((key)btn);
+
+								win->key_pressed((key)btn);
+							}
+						}
+						return 0;
 					
-				case WM_SYSKEYUP:
-				case WM_KEYUP:
-					{
-						WPARAM btn = _wparam;
+					case WM_SYSKEYUP:
+					case WM_KEYUP:
+						{
+							WPARAM btn = _wparam;
 
-						if(btn == VK_SHIFT)
-							wi->modifiers &=~ modifier_shift;
-						else if(btn == VK_MENU)
-							wi->modifiers &=~ modifier_alt;
-						else if(btn == VK_CONTROL)
-							wi->modifiers &=~ modifier_control;
+							if(btn == VK_SHIFT)
+								wi->modifiers &=~ modifier_shift;
+							else if(btn == VK_MENU)
+								wi->modifiers &=~ modifier_alt;
+							else if(btn == VK_CONTROL)
+								wi->modifiers &=~ modifier_control;
 						
-						btn = map_key(btn & 0xFFFF);
-						if(btn && _lparam & (1 << 24))
-							btn++;
+							btn = map_key(btn & 0xFFFF);
+							if(btn && _lparam & (1 << 24))
+								btn++;
 
-						if(btn)
-							win->key_up((key)btn);
+							if(btn)
+								win->key_up((key)btn);
+						}
+						return 0;
+
+					case WM_CHAR:
+						win->key_typed((wchar_t)_wparam);
+						return 0;
+
+					case WM_CLOSE:
+						win->closed();
+						return 0;
 					}
-					return 0;
-
-				case WM_CHAR:
-					win->key_typed((wchar_t)_wparam);
-					return 0;
-
-				case WM_CLOSE:
-					win->closed();
-					return 0;
 				}
+			}
+			catch(std::exception const& _e)
+			{
+				std::cerr << "Unhandled exception in window proc: " << _e.what() << std::endl;
+			}
+			catch(...)
+			{
+				std::cerr << "Unknown unhandled exception in window proc." << std::endl;
 			}
 
 			return DefWindowProcW(_win, _msg, _wparam, _lparam);

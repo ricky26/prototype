@@ -71,6 +71,15 @@ namespace prototype
 		si->id = glCreateShader(_type);
 		return si->id != 0;
 	}
+	
+	bool shader::create(GLenum _type, std::string const& _src)
+	{
+		if(!create(_type))
+			return false;
+
+		set_source(_src);
+		return true;
+	}
 
 	std::string shader::source() const
 	{
