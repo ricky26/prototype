@@ -128,6 +128,11 @@ namespace prototype
 			return _val / 32767.f;
 		}
 
+		static float byte_to_float(unsigned char _val)
+		{
+			return _val / 256.f;
+		}
+
 		void enumerate() override
 		{
 			for(int i = 0; i < NUM_XINPUT_DEVICES; i++)
@@ -163,8 +168,10 @@ namespace prototype
 					
 					dev->LX.set_value(short_to_float(state.Gamepad.sThumbLX));
 					dev->LY.set_value(short_to_float(state.Gamepad.sThumbLY));
+					dev->LT.set_value(byte_to_float(state.Gamepad.bLeftTrigger));
 					dev->RX.set_value(short_to_float(state.Gamepad.sThumbRX));
 					dev->RY.set_value(short_to_float(state.Gamepad.sThumbRY));
+					dev->RT.set_value(byte_to_float(state.Gamepad.bRightTrigger));
 
 					hat_direction dir = hat_middle;
 					if(state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP)
