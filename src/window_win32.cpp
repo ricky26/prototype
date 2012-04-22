@@ -457,8 +457,10 @@ namespace prototype
 								wi->modifiers |= modifier_control;
 
 							btn = map_key(btn & 0xFFFF);
-							if(btn && _lparam & (1 << 24))
-								btn++;
+							if(btn >= key_shift
+								&& btn <= key_meta
+								&& _lparam & (1 << 24))
+									btn++;
 
 							if(btn)
 							{
@@ -483,8 +485,10 @@ namespace prototype
 								wi->modifiers &=~ modifier_control;
 						
 							btn = map_key(btn & 0xFFFF);
-							if(btn && _lparam & (1 << 24))
-								btn++;
+							if(btn >= key_shift
+								&& btn <= key_meta
+								&& _lparam & (1 << 24))
+									btn++;
 
 							if(btn)
 								win->key_up((key)btn);
@@ -892,9 +896,12 @@ namespace prototype
 		key_event evt(this, _btn, false);
 		mMouseUp(evt);
 	}
-
+	
+	extern "C" void module_xaudio();
 	bool window::init()
 	{
+		module_xaudio();
+
 		WNDCLASSEX windowClass;
 		memset(&windowClass, 0, sizeof(windowClass));
 		windowClass.cbSize = sizeof(windowClass);

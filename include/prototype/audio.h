@@ -30,41 +30,43 @@ namespace prototype
 	{
 	public:
 		sound();
-		sound(audio_format const& _fmt, netlib::data &&_data);
 		sound(audio_format const& _fmt, handle<netlib::data> const& _data);
 		sound(audio_format const& _fmt);
 		sound(sound&&);
 
-		inline audio_format const& format() const { return mFormat; }
-		inline netlib::data const& data() const { return mData; }
+		inline bool valid() const { return format().valid() && mData && data()->valid(); }
 
-		void set_data(netlib::data &&_data) { mData.set(std::forward<netlib::data&&>(_data)); }
-		void set_data(handle<netlib::data> const& _data) { mData.set(_data); }
+		inline audio_format const& format() const { return mFormat; }
+		inline netlib::handle<netlib::data> const& data() const { return mData; }
+
+		void set_data(handle<netlib::data> const& _data) { mData = _data; }
 
 	private:
 		sound(sound const&);
 		audio_format mFormat;
-		netlib::data mData;
+		netlib::handle<netlib::data> mData;
 	};
 
-	class PROTOTYPE_API channel: public ref_counted
+	class PROTOTYPE_API audio_channel: public ref_counted
 	{
 	public:
 		virtual void start() = 0;
 		virtual void stop() = 0;
 
-		virtual bool upload(void *_buffer, size_t _sz) = 0;
-		virtual inline bool upload(sound const& _sound) { return upload(_sound.data().ptr(), _sound.data().size()); }
+		virtual void flush() = 0;
+
+		virtual bool upload(void *_buffer, size_t _sz, bool _loop=false) = 0;
+		virtual inline bool upload(sound const& _sound, bool _loop=false) { return upload(_sound.data()->ptr(), _sound.data()->size(), _loop); }
 
 	protected:
-		channel();
+		audio_channel();
 	};
 
 	/** Used in a similar way to window for the gl subsystem. */
 	class PROTOTYPE_API soundscape: public ref_counted
 	{
 	public:
-		virtual handle<channel> create_channel(audio_format const& _f) = 0;
+		virtual handle<audio_channel> create_channel(audio_format const& _f) = 0;
 
 	protected:
 		soundscape(handle<audio_driver> const& _drv);

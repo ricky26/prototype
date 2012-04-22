@@ -213,7 +213,7 @@
       <AdditionalDependencies>libvorbisfile_static.lib;libogg_static.lib;libvorbis_static.lib;zlib.lib;libpng15.lib;xinput.lib;netlib.lib;opengl32.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(OutDir);$(libvorbisRelease);$(libpngRelease)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);../libpng/projects/vstudio/Release Library;../libogg/win32/VS2010/Win32/Release;../libvorbis/win32/VS2010/Win32/Release</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -295,6 +295,9 @@
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalDependencies>libvorbisfile_static.lib;libogg_static.lib;libvorbis_static.lib;zlib.lib;libpng15.lib;xinput.lib;netlib.lib;opengl32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);../libpng/projects/vstudio/x64/Release Library;../libogg/win32/VS2010/x64/Release/;../libvorbis/win32/VS2010/x64/Release/</AdditionalLibraryDirectories>
+      <ForceSymbolReferences>
+      </ForceSymbolReferences>
+      <ExportNamedFunctions>module_xaudio</ExportNamedFunctions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -317,7 +320,14 @@
     <ClInclude Include="include\prototype\shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\glew\src\glew.c" />
+    <ClCompile Include="..\glew\src\glew.c">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/%(RelativeDir)/glew.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)/%(RelativeDir)/glew.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)/%(RelativeDir)/glew.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='RelStatic|Win32'">$(IntDir)/%(RelativeDir)/glew.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/%(RelativeDir)/glew.o</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='RelStatic|x64'">$(IntDir)/%(RelativeDir)/glew.o</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="src\audio.cpp" />
     <ClCompile Include="src\audio_xaudio.cpp" />
     <ClCompile Include="src\image_png.cpp" />

@@ -18,7 +18,7 @@ namespace prototype
 		_ex->nAvgBytesPerSec = (_fmt.bits()*_fmt.channels()*_fmt.rate())/8;
 	}
 
-	class xaudio_channel: public channel
+	class xaudio_channel: public audio_channel
 	{
 	public:
 		IXAudio2SourceVoice *voice;
@@ -35,11 +35,20 @@ namespace prototype
 			voice->Stop();
 		}
 
-		bool upload(void *_buffer, size_t _sz) override
+		void flush() override
+		{
+			voice->FlushSourceBuffers();
+		}
+
+		bool upload(void *_buffer, size_t _sz, bool _loop) override
 		{
 			XAUDIO2_BUFFER bfr = {0};
 			bfr.AudioBytes = (UINT32)_sz;
 			bfr.pAudioData = (BYTE*)_buffer;
+			bfr.Flags = XAUDIO2_END_OF_STREAM;
+
+			if(_loop)
+				bfr.LoopCount = XAUDIO2_LOOP_INFINITE;
 
 			return SUCCEEDED(voice->SubmitSourceBuffer(&bfr));
 		}
@@ -57,7 +66,7 @@ namespace prototype
 		{
 		}
 
-		handle<channel> create_channel(audio_format const& _f) override
+		handle<audio_channel> create_channel(audio_format const& _f) override
 		{
 			IXAudio2SourceVoice *vc;
 			WAVEFORMATEX fmt;
@@ -93,4 +102,5 @@ namespace prototype
 
 	static xaudio_driver xaudio_drv;
 	static static_driver_registration gXAudioReg(&xaudio_drv);
+	extern "C" void module_xaudio() {};
 }

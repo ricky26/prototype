@@ -21,10 +21,10 @@ namespace prototype
 	}
 
 	//
-	// channel
+	// audio_channel
 	//
 	
-	channel::channel()
+	audio_channel::audio_channel()
 	{
 	}
 
@@ -44,9 +44,9 @@ namespace prototype
 	sound::sound()
 	{
 	}
-
-	sound::sound(audio_format const& _fmt, netlib::data &&_data)
-		: mFormat(_fmt), mData(std::move(_data))
+	
+	sound::sound(sound&& _s)
+		: mFormat(_s.mFormat), mData(std::move(_s.mData))
 	{
 	}
 

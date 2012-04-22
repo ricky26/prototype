@@ -42,6 +42,8 @@ namespace prototype
 		bs->read_block(_ptr, _size);
 	}
 
+	// TODO: support non RGBA 8-bit PNGs, or at least don't
+	// crash when we get one. :<
 	PROTOTYPE_API texture load_png(bitstream *_strm)
 	{
 		png_state state;
@@ -70,7 +72,7 @@ namespace prototype
 		std::unique_ptr<png_byte[]> data(new png_byte[bytes*h]);
 
 		std::unique_ptr<png_bytep[]> rows(new png_bytep[h]);
-		for(int i = 0; i < h; i++)
+		for(size_t i = 0; i < h; i++)
 				rows[h-1-i] = data.get() + i*bytes;
 
 		png_read_image(state, rows.get());
